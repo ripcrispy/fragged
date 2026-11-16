@@ -1,0 +1,49 @@
+name: Bug report
+description: Something doesn't work as it should.
+labels: [bug, triage]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting! **Security problems must be reported privately** (see SECURITY.md), not here.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations: { required: true }
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Sign in as a member
+        2. Open …
+        3. Click …
+    validations: { required: true }
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options: [Core, A bundled module, Module SDK / runtime, Installation / deployment, Documentation, Not sure]
+    validations: { required: true }
+  - type: input
+    id: module
+    attributes:
+      label: Module (if any)
+      placeholder: e.g. lan-seating 1.0.0
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+    validations: { required: true }
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      description: Browser and theme for UI bugs; Node version, database (PostgreSQL / embedded) and OS for server bugs.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Remove any secrets, email addresses or private content first.
+      render: text

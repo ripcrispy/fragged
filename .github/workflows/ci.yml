@@ -1,0 +1,48 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: fragged
+          POSTGRES_PASSWORD: fragged-ci
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U fragged" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgres://fragged:fragged-ci@127.0.0.1:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - name: Unit + integration (embedded PostgreSQL)
+        run: npm test
+        env:
+          TEST_DATABASE_URL: ''
+      - name: Unit + integration (PostgreSQL 17 server)
+        run: npx vitest run
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Browser suite (desktop + mobile)
+        run: npm run test:e2e
+      - name: Accessibility audit (axe, all themes)
+        run: |
+          scripts/e2e-server.sh > e2e-server.log 2>&1 &
+          for i in $(seq 1 120); do curl -sf localhost:3200/healthz && break; sleep 1; done
+          BASE=http://localhost:3200 node scripts/a11y-audit.mjs
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results
+          path: test-results/

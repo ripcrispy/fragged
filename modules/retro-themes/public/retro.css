@@ -1,0 +1,209 @@
+/* Retro themes — tokens first, then a few decorative touches per theme. Original styling only. */
+
+/* ───────────── Millennium Desktop (light) ───────────── */
+[data-theme="millennium"] {
+  --font: Tahoma, "Segoe UI", Verdana, "DejaVu Sans", sans-serif;
+  --font-head: "Trebuchet MS", Tahoma, "DejaVu Sans", sans-serif;
+  --radius: 6px;
+  --bg: #d6e7f9;
+  --bg-image: linear-gradient(180deg, #a9c9f2 0, #cfe2f8 420px, #e2eef9 900px, #e6f0d6 1400px);
+  --surface: #ffffff; --surface-alt: #f6f4ea; --surface-sunk: #ece9d8;
+  --head-bg: linear-gradient(180deg, #3d8bf7 0%, #1f68e0 12%, #1659d6 50%, #0f4cc4 88%, #0b43b0 100%); --head-text: #ffffff; --head-border: #0a3a9c;
+  --subhead-bg: #ece9d8; --subhead-text: #1b2b48;
+  --border: #7f9db9; --border-soft: #cfd9e6;
+  --text: #161a20; --text-muted: #4c5664;
+  --link: #0b4cc0; --link-visited: #503d9e; --link-hover: #b8340a;
+  --accent: #2a7d2a; --accent-strong: #1d6a1d; --accent-text: #ffffff;
+  --header-bg: linear-gradient(180deg, #3a7ff0 0%, #2461d8 10%, #1d55c8 55%, #1648b0 100%); --header-text: #ffffff; --header-muted: #dbe7ff;
+  --nav-bg: linear-gradient(180deg, #fbfaf4 0%, #ece9d8 100%); --nav-text: #1b2b48; --nav-border: #a6b4c8; --nav-active: #ffffff;
+  --btn-bg: linear-gradient(180deg, #ffffff 0%, #f1efe4 60%, #e2ded0 100%); --btn-text: #161a20; --btn-border: #2e4f80; --btn-hover: #fffdf3;
+  --primary-bg: linear-gradient(180deg, #45a83a 0%, #2a8a2a 45%, #1f6e1f 100%); --primary-text: #ffffff; --primary-border: #164f16;
+  --danger: #ad2418; --danger-bg: #fbe9e7; --ok: #236b2f; --ok-bg: #e5f3e6; --warn: #7c5100; --warn-bg: #fff4d1; --info: #0b4cc0; --info-bg: #e6effc;
+  --input-bg: #ffffff; --input-border: #7f9db9; --input-text: #161a20;
+  --focus: #e08a12; --focus-ring: 0 0 0 2px #ffffff, 0 0 0 4px #e08a12;
+  --quote-bg: #fffdf0; --quote-border: #c2b070; --code-bg: #f7f6ef; --code-text: #161a20;
+  --unread: #2a7d2a; --badge-bg: #b8340a; --badge-text: #ffffff;
+  --post-author-bg: #eef3fb; --post-head-bg: linear-gradient(180deg, #e2ecfb 0%, #c6d8f3 100%); --post-head-text: #15284a;
+  --tag-bg: #e8eff9; --tag-text: #15284a; --tag-border: #9fb4d3;
+  --dock-bg: #1d55c8; --dock-text: #ffffff;
+  --shadow: 0 2px 6px rgba(10, 40, 110, .25);
+  color-scheme: light;
+}
+[data-theme="millennium"] .box, [data-theme="millennium"] .post { border-color: #0b43b0; border-radius: 8px 8px 4px 4px; }
+[data-theme="millennium"] .box-head { border-radius: 7px 7px 0 0; }
+[data-theme="millennium"] .box-title, [data-theme="millennium"] .cat-name { text-shadow: 1px 1px 0 #0a2f80; }
+[data-theme="millennium"] .btn { border-radius: 4px; }
+[data-theme="millennium"] .btn-primary { border-radius: 4px 14px 14px 4px; font-style: italic; text-shadow: 1px 1px 0 #0f400f; }
+[data-theme="millennium"] .logo-text { font-style: italic; text-shadow: 1px 2px 0 #0a2f80; }
+[data-theme="millennium"] .lg-frag { color: #a6f58f; }
+[data-theme="millennium"] .site-header { border-bottom: 3px solid #f0a028; }
+
+/* ───────────── Cartridge (dark) ───────────── */
+[data-theme="cartridge"] {
+  --font: "Trebuchet MS", "DejaVu Sans", Verdana, sans-serif;
+  --font-head: "Arial Black", "DejaVu Sans", Verdana, sans-serif;
+  --radius: 10px;
+  --bg: #1b1b1f;
+  --bg-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='104'%3E%3Cg fill='%23ffffff'%3E%3Cpath d='M0 0L60 0L30 52Z' fill-opacity='.018'/%3E%3Cpath d='M60 0L120 0L90 52Z' fill-opacity='.03'/%3E%3Cpath d='M30 52L90 52L60 104Z' fill-opacity='.022'/%3E%3Cpath d='M0 104L30 52L60 104Z' fill-opacity='.012'/%3E%3C/g%3E%3C/svg%3E"),
+    linear-gradient(180deg, #26262c 0, #1b1b1f 420px);
+  --surface: #2a2a30; --surface-alt: #313138; --surface-sunk: #202024;
+  --head-bg: linear-gradient(180deg, #3d3d46 0%, #2c2c33 100%); --head-text: #ffffff; --head-border: #111114;
+  --subhead-bg: #34343c; --subhead-text: #ececf0;
+  --border: #4a4a54; --border-soft: #3a3a42;
+  --text: #ededf2; --text-muted: #b4b4bf;
+  --link: #7fabff; --link-visited: #bba6ff; --link-hover: #ffd23f;
+  --accent: #ffc20e; --accent-strong: #ffa400; --accent-text: #141414;
+  --header-bg: linear-gradient(180deg, #303037 0%, #17171a 100%); --header-text: #ffffff; --header-muted: #c2c2cc;
+  --nav-bg: linear-gradient(180deg, #35353d 0%, #27272d 100%); --nav-text: #f2f2f5; --nav-border: #111114; --nav-active: #3b3522;
+  --btn-bg: linear-gradient(180deg, #4b4b54 0%, #35353c 100%); --btn-text: #f4f4f6; --btn-border: #111114; --btn-hover: #56565f;
+  --primary-bg: linear-gradient(180deg, #3bd474 0%, #10a852 100%); --primary-text: #06200f; --primary-border: #0a5a2c;
+  --danger: #ff7272; --danger-bg: #3a1a1d; --ok: #63e08f; --ok-bg: #17301f; --warn: #ffd23f; --warn-bg: #332b10; --info: #7fabff; --info-bg: #1b2440;
+  --input-bg: #18181b; --input-border: #5a5a64; --input-text: #f4f4f6;
+  --focus: #ffd23f; --focus-ring: 0 0 0 2px #111, 0 0 0 4px #ffd23f;
+  --quote-bg: #303037; --quote-border: #7fabff; --code-bg: #151518; --code-text: #8fe3a8;
+  --unread: #ff5a5a; --badge-bg: #d01c24; --badge-text: #ffffff;
+  --post-author-bg: #26262b; --post-head-bg: linear-gradient(180deg, #37373e 0%, #2d2d33 100%); --post-head-text: #ececf0;
+  --tag-bg: #35353c; --tag-text: #ececf0; --tag-border: #4f4f59;
+  --warn-tag-bg: #3a3010; --warn-tag-text: #ffd23f; --warn-tag-border: #6e5a10;
+  --dock-bg: #18181b; --dock-text: #f4f4f6;
+  --overlay: rgba(0,0,0,.72);
+  --shadow: 0 3px 0 #0d0d0f; --shadow-pop: 0 10px 30px rgba(0,0,0,.6);
+  --rarity-common: #b4b4bf; --rarity-uncommon: #63e08f; --rarity-rare: #7fabff; --rarity-epic: #d29cff; --rarity-legendary: #ffc20e;
+  color-scheme: dark;
+}
+[data-theme="cartridge"] .site-header { border-bottom: 5px solid transparent; border-image: linear-gradient(90deg, #e4232b 0 25%, #ffc20e 25% 50%, #10a852 50% 75%, #2f63e0 75% 100%) 5; }
+[data-theme="cartridge"] .btn { border-radius: 999px; }
+[data-theme="cartridge"] .box-head { border-left: 6px solid #e4232b; }
+[data-theme="cartridge"] .box:nth-of-type(4n+2) > .box-head { border-left-color: #ffc20e; }
+[data-theme="cartridge"] .box:nth-of-type(4n+3) > .box-head { border-left-color: #10a852; }
+[data-theme="cartridge"] .box:nth-of-type(4n+4) > .box-head { border-left-color: #2f63e0; }
+[data-theme="cartridge"] .logo-text { text-shadow: 2px 2px 0 #2f63e0, 4px 4px 0 #111; }
+[data-theme="cartridge"] .page-title { text-shadow: 2px 2px 0 #000; }
+
+/* ───────────── Arcade Blue (dark) ───────────── */
+[data-theme="arcade"] {
+  --font: Verdana, "DejaVu Sans", Tahoma, sans-serif;
+  --font-head: "Arial Black", "Helvetica Neue", Arial, "DejaVu Sans", sans-serif;
+  --title-transform: uppercase; --title-letter: .03em;
+  --radius: 4px;
+  --bg: #061a4d;
+  --bg-image:
+    repeating-linear-gradient(100deg, rgba(255,255,255,.035) 0 2px, transparent 2px 34px),
+    linear-gradient(180deg, #0c2c82 0, #061a4d 520px);
+  --surface: #0c2263; --surface-alt: #10296f; --surface-sunk: #081b52;
+  --head-bg: linear-gradient(180deg, #3277f2 0%, #1a50d0 48%, #1043b8 52%, #0e3aa4 100%); --head-text: #ffffff; --head-border: #031040;
+  --subhead-bg: #142f7d; --subhead-text: #e8eeff;
+  --border: #2f52ad; --border-soft: #1d3a8a;
+  --text: #eef2ff; --text-muted: #bccaf0;
+  --link: #93c8ff; --link-visited: #cbbcff; --link-hover: #ffe14d;
+  --accent: #ffcf33; --accent-strong: #ff9f1a; --accent-text: #141000;
+  --header-bg: linear-gradient(180deg, #0d36a8 0%, #051a5a 100%); --header-text: #ffffff; --header-muted: #c9d6ff;
+  --nav-bg: linear-gradient(180deg, #f5f7fc 0%, #d4dbea 55%, #b9c4d8 100%); --nav-text: #0a1f5c; --nav-border: #5f72a0; --nav-active: #ffffff;
+  --btn-bg: linear-gradient(180deg, #f6f8fc 0%, #d6dcea 55%, #b8c2d6 100%); --btn-text: #0a1f5c; --btn-border: #031040; --btn-hover: #ffffff;
+  --primary-bg: linear-gradient(180deg, #ffe066 0%, #ffb000 100%); --primary-text: #1a1200; --primary-border: #7a5200;
+  --danger: #ff8a8a; --danger-bg: #3a0f2a; --ok: #74f0a6; --ok-bg: #0d3a2a; --warn: #ffd84d; --warn-bg: #33290a; --info: #93c8ff; --info-bg: #0e2a66;
+  --input-bg: #061646; --input-border: #4466c4; --input-text: #eef2ff;
+  --focus: #ffd84d; --focus-ring: 0 0 0 2px #031040, 0 0 0 4px #ffd84d;
+  --quote-bg: #0a1f5c; --quote-border: #93c8ff; --code-bg: #04123a; --code-text: #8ff0c0;
+  --unread: #ffcf33; --badge-bg: #ffcf33; --badge-text: #141000;
+  --post-author-bg: #0b2160; --post-head-bg: linear-gradient(180deg, #1a3d9a 0%, #123084 100%); --post-head-text: #eef2ff;
+  --tag-bg: #14307e; --tag-text: #eef2ff; --tag-border: #4466c4;
+  --warn-tag-bg: #3a2f0a; --warn-tag-text: #ffd84d; --warn-tag-border: #7a6010;
+  --dock-bg: #051a5a; --dock-text: #ffffff;
+  --overlay: rgba(2, 8, 30, .75);
+  --shadow: 0 2px 0 #020a2a; --shadow-pop: 0 10px 30px rgba(0,0,20,.6);
+  --rarity-common: #bccaf0; --rarity-uncommon: #74f0a6; --rarity-rare: #93c8ff; --rarity-epic: #d9a6ff; --rarity-legendary: #ffcf33;
+  color-scheme: dark;
+}
+[data-theme="arcade"] .site-header { border-bottom: 4px solid transparent; border-image: linear-gradient(180deg, #ffffff, #8c9ab8 50%, #e9eef8) 4; }
+[data-theme="arcade"] .page-title, [data-theme="arcade"] .box-title, [data-theme="arcade"] .cat-name { font-style: italic; text-shadow: 2px 2px 0 #031040; }
+[data-theme="arcade"] .logo-text { font-style: italic; text-transform: uppercase; text-shadow: 3px 3px 0 #031040; }
+[data-theme="arcade"] .btn { font-style: italic; }
+
+/* ───────────── LAN Party (dark) ───────────── */
+[data-theme="lanparty"] {
+  --font: "DejaVu Sans", Verdana, Tahoma, sans-serif;
+  --font-head: "DejaVu Sans Mono", Consolas, "Courier New", monospace;
+  --title-transform: uppercase; --title-letter: .06em;
+  --radius: 2px;
+  --bg: #07090c;
+  --bg-image:
+    repeating-linear-gradient(0deg, rgba(0,0,0,.28) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 15% 0%, rgba(57,255,156,.09), transparent 50%),
+    radial-gradient(ellipse at 90% 5%, rgba(255,79,216,.08), transparent 45%);
+  --surface: #0d1117; --surface-alt: #111821; --surface-sunk: #090d12;
+  --head-bg: linear-gradient(180deg, #10201c 0%, #0b1512 100%); --head-text: #4dffa6; --head-border: #1f6b4c;
+  --subhead-bg: #111c19; --subhead-text: #a6ffd6;
+  --border: #224a40; --border-soft: #16262a;
+  --text: #d8f5e9; --text-muted: #93b8aa;
+  --link: #4fe3ff; --link-visited: #c897ff; --link-hover: #ff6be0;
+  --accent: #39ff9c; --accent-strong: #00c46a; --accent-text: #031009;
+  --header-bg:
+    linear-gradient(90deg, rgba(57,255,156,.06) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(0deg, rgba(57,255,156,.06) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(180deg, #0a0f14 0%, #05070a 100%);
+  --header-text: #d8f5e9; --header-muted: #93b8aa;
+  --nav-bg: #0b1015; --nav-text: #d8f5e9; --nav-border: #224a40; --nav-active: #102420;
+  --btn-bg: #121a22; --btn-text: #c9f9e4; --btn-border: #2f6b5b; --btn-hover: #17252e;
+  --primary-bg: linear-gradient(180deg, #5cffb0 0%, #19db7d 100%); --primary-text: #031009; --primary-border: #0a6b40;
+  --danger: #ff6b84; --danger-bg: #2a0d16; --ok: #39ff9c; --ok-bg: #0c2219; --warn: #ffe14d; --warn-bg: #2a250a; --info: #4fe3ff; --info-bg: #0a2128;
+  --input-bg: #05080b; --input-border: #2f6b5b; --input-text: #d8f5e9;
+  --focus: #ff6be0; --focus-ring: 0 0 0 2px #05070a, 0 0 0 4px #ff6be0;
+  --quote-bg: #0f1a1a; --quote-border: #39ff9c; --code-bg: #030507; --code-text: #39ff9c;
+  --unread: #ff6be0; --badge-bg: #ff6be0; --badge-text: #12000e;
+  --post-author-bg: #0b1218; --post-head-bg: linear-gradient(180deg, #101c1f 0%, #0c1518 100%); --post-head-text: #a6ffd6;
+  --tag-bg: #0f1c1c; --tag-text: #b8f5dc; --tag-border: #2a5a4f;
+  --warn-tag-bg: #2a250a; --warn-tag-text: #ffe14d; --warn-tag-border: #6b5d14;
+  --dock-bg: #05080b; --dock-text: #d8f5e9;
+  --overlay: rgba(0,0,0,.78);
+  --shadow: 0 0 0 1px rgba(57,255,156,.05), 0 4px 14px rgba(0,0,0,.6); --shadow-pop: 0 0 24px rgba(57,255,156,.15), 0 10px 30px rgba(0,0,0,.7);
+  --presence-online: #39ff9c; --presence-away: #ffe14d; --presence-offline: #5c7a70;
+  --rarity-common: #93b8aa; --rarity-uncommon: #39ff9c; --rarity-rare: #4fe3ff; --rarity-epic: #c897ff; --rarity-legendary: #ffe14d;
+  color-scheme: dark;
+}
+[data-theme="lanparty"] .site-header { border-bottom: 2px solid transparent; border-image: linear-gradient(90deg, #39ff9c, #4fe3ff 50%, #ff6be0) 2; }
+[data-theme="lanparty"] .nav-links a { letter-spacing: .02em; padding-left: 9px; padding-right: 9px; }
+[data-theme="lanparty"] .logo-text { text-shadow: 0 0 10px rgba(57,255,156,.55); }
+[data-theme="lanparty"] .box-title, [data-theme="lanparty"] .cat-name { text-shadow: 0 0 8px rgba(57,255,156,.35); }
+[data-theme="lanparty"] .box-title::before, [data-theme="lanparty"] .page-title::before { content: "> "; color: var(--accent); }
+[data-theme="lanparty"] .btn-primary { box-shadow: 0 0 12px rgba(57,255,156,.35); }
+
+/* ───────────── Bulletin '06 (light) ───────────── */
+[data-theme="bulletin"] {
+  --font: Verdana, Tahoma, "DejaVu Sans", sans-serif;
+  --font-head: "Trebuchet MS", Verdana, "DejaVu Sans", sans-serif;
+  --fs: 12px; --fs-small: 11px;
+  --radius: 2px;
+  --bg: #c9d1dc;
+  --bg-image: linear-gradient(180deg, #8794a6 0, #c9d1dc 280px);
+  --surface: #ffffff; --surface-alt: #f1f4f8; --surface-sunk: #e5eaf0;
+  --head-bg: linear-gradient(180deg, #5b7499 0%, #3e5b86 49%, #2c4670 51%, #36537f 100%); --head-text: #ffffff; --head-border: #1e3256;
+  --subhead-bg: #dbe3ee; --subhead-text: #1e3256;
+  --border: #9aaac0; --border-soft: #ccd5e1;
+  --text: #1a1f27; --text-muted: #525c6a;
+  --link: #1b4d98; --link-visited: #573c96; --link-hover: #c43d0b;
+  --accent: #f07a22; --accent-strong: #c4500a; --accent-text: #1a0d00;
+  --header-bg:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, #474d56 0%, #23272d 100%);
+  --header-text: #ffffff; --header-muted: #c8cfd9;
+  --nav-bg: linear-gradient(180deg, #fdfdfe 0%, #dfe5ee 100%); --nav-text: #1e3256; --nav-border: #9aaac0; --nav-active: #ffffff;
+  --btn-bg: linear-gradient(180deg, #ffffff 0%, #e1e7ef 100%); --btn-text: #1e3256; --btn-border: #7d90aa; --btn-hover: #f7f9fb;
+  --primary-bg: linear-gradient(180deg, #f9a15a 0%, #e46a14 100%); --primary-text: #1a0d00; --primary-border: #a8470a;
+  --input-bg: #ffffff; --input-border: #8193ac; --input-text: #1a1f27;
+  --focus: #e46a14; --focus-ring: 0 0 0 2px #ffffff, 0 0 0 4px #e46a14;
+  --quote-bg: #f4f6f9; --quote-border: #7d90aa;
+  --unread: #e46a14; --badge-bg: #b8460a; --badge-text: #ffffff;
+  --post-author-bg: #eef2f7; --post-head-bg: linear-gradient(180deg, #e6ecf3 0%, #d2dbe7 100%); --post-head-text: #1e3256;
+  --tag-bg: #e6ecf4; --tag-text: #1e3256; --tag-border: #a9b8cc;
+  --dock-bg: #2c4670; --dock-text: #ffffff;
+  --shadow: 0 1px 2px rgba(20, 35, 60, .25);
+  color-scheme: light;
+}
+[data-theme="bulletin"] .site-header { border-bottom: 3px solid #e46a14; }
+[data-theme="bulletin"] .logo-text { font-family: "Trebuchet MS", Verdana, sans-serif; text-shadow: 0 2px 2px #000; }
+[data-theme="bulletin"] .box-head, [data-theme="bulletin"] .cat-head th { border-top: 1px solid rgba(255,255,255,.35); }
+[data-theme="bulletin"] .box-title, [data-theme="bulletin"] .cat-name { text-shadow: 0 1px 0 #1e3256; }
+[data-theme="arcade"] .btn-ghost { color: var(--link); border-color: var(--border); }
+[data-theme="arcade"] .nav-links > li > a:hover, [data-theme="arcade"] .nav-more-btn:hover, [data-theme="arcade"] .nav-more-btn[aria-expanded="true"] { color: #0a1f5c; }

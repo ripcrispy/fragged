@@ -1,0 +1,4 @@
+{
+  "$comment": "Third-party modules installed from npm. Add the package name here, run `npm install <pkg>` and `npm run modules:sync`. First-party modules in ./modules are discovered automatically.",
+  "modules": []
+}

@@ -1,0 +1,24 @@
+/* Caffeine tracker — theme tokens only. */
+.caf-level { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border-radius: 12px; font-weight: bold; border: 1px solid var(--border); background: var(--surface-alt); white-space: nowrap; }
+.caf-calm { color: var(--text-muted); }
+.caf-ok { border-color: var(--ok); background: var(--ok-bg); color: var(--ok); }
+.caf-high { border-color: var(--warn); background: var(--warn-bg); color: var(--warn); }
+.caf-danger { border-color: var(--danger); background: var(--danger-bg); color: var(--danger); text-transform: uppercase; }
+.caf-critical { border-color: var(--danger); background: var(--danger); color: var(--danger-bg); text-transform: uppercase; letter-spacing: .05em; }
+@media (prefers-reduced-motion: no-preference) { .caf-critical { animation: caf-pulse 1.2s ease-in-out infinite; } }
+@keyframes caf-pulse { 50% { box-shadow: 0 0 0 4px var(--danger-bg); } }
+.caf-big { font-size: 2.2rem; font-weight: bold; font-family: var(--font-head); }
+.caf-me { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; }
+.caf-chart { width: 100%; max-width: 640px; height: auto; color: var(--accent); }
+.caf-chart .caf-grid { stroke: var(--border-soft); stroke-width: 1; }
+.caf-chart .caf-limit { stroke: var(--danger); stroke-dasharray: 4 4; stroke-width: 1; }
+.caf-chart .caf-line { fill: none; stroke: currentColor; stroke-width: 2.5; }
+.caf-chart .caf-future { fill: none; stroke: currentColor; stroke-width: 2; stroke-dasharray: 5 4; opacity: .6; }
+.caf-chart .caf-now { stroke: var(--text-muted); stroke-width: 1; }
+.caf-chart text { fill: var(--text-muted); font-size: 10px; font-family: var(--font); }
+.caf-boards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 12px; margin-bottom: 12px; }
+.caf-boards .data-table td, .caf-boards .data-table th { white-space: nowrap; }
+.caf-levels td:first-child { white-space: nowrap; }
+.caf-prefs { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-soft); }
+.caf-boards .box { margin: 0; min-width: 0; }
+.caf-rank { width: 2rem; text-align: right; font-weight: bold; }

@@ -1,0 +1,32 @@
+name: Feature request
+description: Suggest an improvement to Fragged Forums.
+labels: [enhancement, triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the situation and who it affects (members, moderators, admins, module authors…).
+    validations: { required: true }
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like to happen?
+    validations: { required: true }
+  - type: dropdown
+    id: fit
+    attributes:
+      label: Core or module?
+      description: Optional, regional, event-specific or third-party-service features usually belong in a module.
+      options: [Core, A module, Not sure]
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you've considered
+  - type: checkboxes
+    id: a11y
+    attributes:
+      label: Checks
+      options:
+        - label: I've searched existing issues for this idea.
+          required: true

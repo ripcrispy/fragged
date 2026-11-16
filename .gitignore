@@ -1,0 +1,44 @@
+# ── Dependencies ──
+node_modules/
+
+# ── Build output ──
+dist/
+public/js/app.js
+public/js/app.js.map
+*.tsbuildinfo
+
+# ── Local data: embedded database, uploads, mail drops, QA screenshots, logs ──
+data/
+
+# ── Secrets and local configuration (commit .env.example only) ──
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p8
+*.p12
+
+# ── Test and tooling output ──
+test-results/
+playwright-report/
+blob-report/
+coverage/
+.nyc_output/
+*.log
+npm-debug.log*
+
+# ── Editors and operating systems ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Local assistant/tool settings ──
+.claude/settings.local.json
+
+# Note: src/generated/modules.ts is generated but committed on purpose (CI checks it is up to date).

@@ -1,0 +1,33 @@
+name: Module or SDK proposal
+description: Propose a new bundled module, or a new hook / extension point / SDK helper for module authors.
+labels: [modules, proposal]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Proposal type
+      options: [New bundled module, New hook, New extension point, New SDK helper, Change to an existing SDK API]
+    validations: { required: true }
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What it does and who it's for.
+    validations: { required: true }
+  - type: textarea
+    id: api
+    attributes:
+      label: Proposed API / manifest
+      description: Hook names and payloads, extension-point shape, permissions, settings, tables (`mod_<id>_*`)…
+      render: ts
+  - type: textarea
+    id: security
+    attributes:
+      label: Security and privacy
+      description: What data does it store or expose? Who can configure it? Does it contact external hosts? How are members' choices (blocks, opt-outs, account closure) respected?
+    validations: { required: true }
+  - type: textarea
+    id: compat
+    attributes:
+      label: Compatibility
+      description: Is this backwards compatible for existing modules (minor SDK bump) or breaking (major)?

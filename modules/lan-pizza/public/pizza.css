@@ -1,0 +1,17 @@
+/* LAN pizza orders — theme tokens only. */
+.pz-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.pz-mine { border: 1px solid var(--border); border-left: 5px solid var(--warn); background: var(--surface-alt); border-radius: var(--radius); padding: 8px 12px; margin-bottom: 12px; }
+.pz-mine.is-paid { border-left-color: var(--ok); }
+.pz-mine h3 { margin: 0 0 6px; font-size: 1rem; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.pz-cat { border: 0; padding: 0; margin: 0 0 10px; min-width: 0; }
+.pz-cat legend { font-weight: bold; font-family: var(--font-head); padding: 0; margin-bottom: 4px; }
+.pz-menu td { vertical-align: middle; }
+.pz-price { white-space: nowrap; text-align: right; width: 6em; }
+.pz-qty { width: 5.5em; }
+.pz-qty input { width: 4.5em; }
+.pz-diet { font-size: 10px; }
+.pz-actions { align-items: center; }
+.pz-total { font-weight: bold; font-size: 1.1rem; }
+.pz-steps { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.pz-orders .pz-unpaid td:first-child { box-shadow: inset 4px 0 0 var(--warn); }
+.pz-orders td { vertical-align: top; }

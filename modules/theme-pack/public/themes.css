@@ -1,0 +1,95 @@
+/* Theme pack: Dark, Light and Frag. Each theme only redefines the core design tokens (see public/css/app.css). */
+
+[data-theme="light"] {
+  --fs: 14px;
+  --bg: #f4f6f8; --bg-image: none;
+  --surface: #ffffff; --surface-alt: #f8fafb; --surface-sunk: #eef1f4;
+  --head-bg: linear-gradient(180deg, #ffffff 0%, #eef2f6 100%); --head-text: #1d2733; --head-border: #d3dae2;
+  --subhead-bg: #f0f3f6; --subhead-text: #2b3440;
+  --border: #d3dae2; --border-soft: #e5e9ee;
+  --text: #1b2430; --text-muted: #5f6b78;
+  --link: #165aa8; --link-visited: #3f50a0; --link-hover: #d1601a;
+  --header-bg: linear-gradient(180deg, #ffffff 0%, #f2f5f8 100%); --header-text: #1b2430; --header-muted: #5f6b78;
+  --nav-bg: #ffffff; --nav-text: #1b2430; --nav-border: #d3dae2; --nav-active: #fff3ea;
+  --btn-bg: #ffffff; --btn-text: #1b2430; --btn-border: #c3ccd6; --btn-hover: #f3f6f9;
+  --post-author-bg: #f8fafb; --post-head-bg: #f0f3f6; --post-head-text: #2b3440;
+  --quote-bg: #f6f8fa; --code-bg: #f6f8fa;
+  --dock-bg: #ffffff; --dock-text: #1b2430;
+  --shadow: 0 1px 2px rgba(0,0,0,.08);
+}
+
+
+[data-theme="light"] .account-box .btn-ghost { background: var(--surface-sunk); }
+
+[data-theme="dark"] {
+  --bg: #15191e; --bg-image: none;
+  --surface: #1f252c; --surface-alt: #242b33; --surface-sunk: #181d23;
+  --head-bg: linear-gradient(180deg, #2c3540 0%, #232b34 100%); --head-text: #e6ebf0; --head-border: #11151a;
+  --subhead-bg: #2a323b; --subhead-text: #d3dae2;
+  --border: #3a444f; --border-soft: #2e3741;
+  --text: #dde3ea; --text-muted: #9aa6b3;
+  --link: #7cb6f2; --link-visited: #a3a8f0; --link-hover: #ffad73;
+  --accent: #f08a45; --accent-strong: #ffad73;
+  --header-bg: linear-gradient(180deg, #0f1317 0%, #161b21 100%); --header-text: #e6ebf0; --header-muted: #8796a6;
+  --nav-bg: linear-gradient(180deg, #262e37 0%, #1e252d 100%); --nav-text: #d3dae2; --nav-border: #11151a; --nav-active: #2f3944;
+  --btn-bg: linear-gradient(180deg, #313b46 0%, #28313b 100%); --btn-text: #e6ebf0; --btn-border: #46525f; --btn-hover: #36414d;
+  --danger: #ff7b6e; --danger-bg: #3a1f1d; --ok: #6fd08a; --ok-bg: #1b3223; --warn: #ffc95c; --warn-bg: #3a2f14; --info: #7cb6f2; --info-bg: #1b2a3b;
+  --input-bg: #161b21; --input-border: #46525f; --input-text: #e6ebf0;
+  --focus: #ffad73; --focus-ring: 0 0 0 2px #15191e, 0 0 0 4px #ffad73;
+  --quote-bg: #262e37; --quote-border: #4b5764; --code-bg: #12161b; --code-text: #e6ebf0;
+  --post-author-bg: #232a32; --post-head-bg: linear-gradient(180deg, #2c3540 0%, #262e37 100%); --post-head-text: #c9d2dc;
+  --tag-bg: #2c3540; --tag-text: #d3dae2; --tag-border: #46525f;
+  --warn-tag-bg: #3a2f14; --warn-tag-text: #ffd27a; --warn-tag-border: #7a6020;
+  --dock-bg: #0f1317; --dock-text: #e6ebf0;
+  --overlay: rgba(0,0,0,.7);
+  --shadow: 0 1px 3px rgba(0,0,0,.5);
+  --rarity-common: #a3adb8; --rarity-uncommon: #6fd08a; --rarity-rare: #7cb6f2; --rarity-epic: #c69cf0; --rarity-legendary: #ffad73;
+  color-scheme: dark;
+}
+
+
+[data-theme="frag"] {
+  --font: "DejaVu Sans", Verdana, Tahoma, sans-serif;
+  --font-head: Impact, Haettenschweiler, "Arial Narrow Bold", "DejaVu Sans Condensed", sans-serif;
+  --title-transform: uppercase; --title-letter: .04em;
+  --radius: 0;
+  --bg: #121315;
+  --bg-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E"),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.018) 0 2px, transparent 2px 6px),
+    linear-gradient(180deg, #1b1d21 0, #121315 400px);
+  --surface: #1c1e22; --surface-alt: #212328; --surface-sunk: #151619;
+  --head-bg: linear-gradient(180deg, #3b3f46 0%, #2a2d33 48%, #23262b 52%, #2e3238 100%); --head-text: #f3f0e6; --head-border: #0b0c0d;
+  --subhead-bg: #26292e; --subhead-text: #e8e3d3;
+  --border: #3d4148; --border-soft: #2d3036;
+  --text: #e7e3d8; --text-muted: #a8a397;
+  --link: #ffb020; --link-visited: #e6a23c; --link-hover: #ff5a1f;
+  --accent: #ff5a1f; --accent-strong: #ffb020; --accent-text: #111111;
+  --header-bg:
+    repeating-linear-gradient(-45deg, rgba(0,0,0,.25) 0 10px, transparent 10px 20px),
+    linear-gradient(180deg, #2a2d33 0%, #17181b 100%);
+  --header-text: #f3f0e6; --header-muted: #b9b2a0;
+  --nav-bg: linear-gradient(180deg, #34383f 0%, #24272c 100%); --nav-text: #f3f0e6; --nav-border: #0b0c0d; --nav-active: #3f2a1a;
+  --btn-bg: linear-gradient(180deg, #474c54 0%, #2f3238 100%); --btn-text: #f3f0e6; --btn-border: #0b0c0d; --btn-hover: #50565f;
+  --primary-bg: linear-gradient(180deg, #ff7a2f 0%, #e0420f 100%); --primary-text: #111111; --primary-border: #0b0c0d;
+  --danger: #ff6a5a; --danger-bg: #351a17; --ok: #9be36b; --ok-bg: #1f2c17; --warn: #ffd23f; --warn-bg: #2e2810; --info: #ffb020; --info-bg: #2a2214;
+  --input-bg: #0f1012; --input-border: #4a4f57; --input-text: #f3f0e6;
+  --focus: #ffd23f; --focus-ring: 0 0 0 2px #111, 0 0 0 4px #ffd23f;
+  --quote-bg: #25282d; --quote-border: #ff5a1f; --code-bg: #0c0d0f; --code-text: #9be36b;
+  --unread: #ff5a1f; --badge-bg: #ff5a1f; --badge-text: #111111;
+  --post-author-bg: linear-gradient(180deg, #24272c 0%, #1d1f23 100%); --post-head-bg: linear-gradient(180deg, #34383f 0%, #26292e 100%); --post-head-text: #e8e3d3;
+  --tag-bg: #2b2e34; --tag-text: #e8e3d3; --tag-border: #4a4f57;
+  --warn-tag-bg: #ffd23f; --warn-tag-text: #111111; --warn-tag-border: #0b0c0d;
+  --dock-bg: #17181b; --dock-text: #f3f0e6;
+  --shadow: 0 2px 0 #000, inset 0 1px 0 rgba(255,255,255,.05); --shadow-pop: 0 8px 30px rgba(0,0,0,.6);
+  --overlay: rgba(0,0,0,.75);
+  --rarity-common: #b9b2a0; --rarity-uncommon: #9be36b; --rarity-rare: #6fc3ff; --rarity-epic: #d48cff; --rarity-legendary: #ffb020;
+  color-scheme: dark;
+}
+[data-theme="frag"] .site-header { border-bottom: 4px solid transparent; border-image: repeating-linear-gradient(-45deg, #ffd23f 0 12px, #111 12px 24px) 4; }
+[data-theme="frag"] .box, [data-theme="frag"] .table-wrap, [data-theme="frag"] .post { box-shadow: var(--shadow); }
+[data-theme="frag"] .box-head, [data-theme="frag"] .cat-head th, [data-theme="frag"] .thread-table thead th { border-top: 1px solid rgba(255,255,255,.12); }
+[data-theme="frag"] .page-title, [data-theme="frag"] .box-title, [data-theme="frag"] .forum-title a, [data-theme="frag"] .cat-name { text-shadow: 0 2px 0 #000; }
+[data-theme="frag"] .btn-primary { text-shadow: none; }
+
+[data-theme="frag"] .logo-text { font-size: 32px; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 3px 0 #000; }

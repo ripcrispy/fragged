@@ -1,0 +1,37 @@
+# systemd unit for Fragged Forums. Install:
+#   sudo useradd --system --home /var/lib/fragged --shell /usr/sbin/nologin fragged
+#   sudo install -d -o fragged -g fragged -m 750 /var/lib/fragged
+#   sudo cp deploy/fragged.service /etc/systemd/system/ && sudo systemctl daemon-reload
+#   sudo systemctl enable --now fragged
+# Configuration lives in /etc/fragged/fragged.env (mode 600, see .env.example).
+[Unit]
+Description=Fragged Forums
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=fragged
+Group=fragged
+WorkingDirectory=/opt/fragged
+EnvironmentFile=/etc/fragged/fragged.env
+ExecStart=/usr/bin/node dist/server.js
+Restart=on-failure
+RestartSec=3
+# hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+ReadWritePaths=/var/lib/fragged
+CapabilityBoundingSet=
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

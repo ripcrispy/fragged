@@ -1,0 +1,27 @@
+/* LAN seating module — uses core theme tokens so it follows every theme. */
+.seatmap-scroll { overflow-x: auto; padding: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin: 8px 0; }
+.seatmap { display: inline-flex; flex-direction: column; gap: 4px; min-width: max-content; }
+.seat-row { display: flex; gap: 4px; align-items: center; }
+.seat-row-label { width: 1.6rem; text-align: right; font-weight: bold; color: var(--text-muted); font-size: 11px; margin-right: 4px; }
+.seat-form { display: contents; }
+.seat { width: 2.6rem; height: 2.6rem; display: inline-grid; place-content: center; border-radius: 4px; font-size: 10px; line-height: 1.1; text-align: center; border: 1px solid var(--border); color: var(--text); text-decoration: none !important; padding: 0; font-family: var(--font); }
+.seat-aisle { border-color: transparent; background: transparent; }
+.seat-table { background: var(--surface-sunk); border-color: var(--border-soft); border-radius: 2px; }
+.seat-free { background: var(--ok-bg); border-color: var(--ok); }
+.seat-bookable { cursor: pointer; }
+.seat-bookable:hover, .seat-bookable:focus-visible { background: var(--ok); color: var(--surface); }
+.seat-taken { background: var(--info-bg); border-color: var(--info); }
+.seat-taken:hover { border-width: 2px; }
+.seat-friend { background: var(--warn-bg); border-color: var(--warn); border-width: 2px; }
+.seat-mine { background: var(--badge-bg); border-color: var(--accent-strong); color: var(--badge-text); font-weight: bold; }
+.seat-reserved { background: repeating-linear-gradient(45deg, var(--surface-sunk) 0 4px, var(--surface) 4px 8px); border-style: dashed; }
+.seat-blocked { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
+.seat-code { font-weight: bold; }
+.seat-who { font-size: 9px; text-transform: uppercase; }
+.seat-legend { list-style: none; display: flex; flex-wrap: wrap; gap: 12px; padding: 0; margin: 6px 0; font-size: 12px; }
+.seat-legend li { display: inline-flex; align-items: center; gap: 4px; }
+.seat-legend .seat { width: 1.1rem; height: 1.1rem; }
+.seat-summary { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; padding: 8px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.seat-list { margin-top: 10px; } .seat-list > summary { cursor: pointer; font-weight: bold; }
+.layout-input { font-family: var(--font-mono); letter-spacing: .25em; line-height: 1.4; }
+.lan-event-list a { text-decoration: underline; }
