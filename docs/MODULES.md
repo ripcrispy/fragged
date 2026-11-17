@@ -170,6 +170,7 @@ boundary for bundled modules.
 | `services.rateLimit(key, { max, windowSec })` | Returns `{ ok, retryAfter }`. Shared across instances on PostgreSQL. |
 | `services.push(userId, event)` | Real-time hint to a member's open tabs. |
 | `services.coreSetting(key)` | Read a core site setting such as `site_name`. |
+| `services.forums.{postable,createThread,setSticky}` | *(SDK 1.1)* Forums the viewer may start threads in; start a thread **as the viewer**; make it sticky. Every core check applies (permissions, posting policy, rate limits, restricted terms), so a module can't post where the member couldn't. See `lan-bookings`. |
 | `oidc.{verifyIdToken,fetchProfile,createRemoteJWKSet}` | For sign-in provider modules. |
 | `crypto.{hmac,sha256,safeEqual,randomToken}` | Keyed with the site's `APP_SECRET`. |
 | `form`, `str`, `int`, `bool`, `arr`, `setFlash` | Read form bodies safely; one-shot flash messages. |
@@ -346,6 +347,7 @@ All `ctx.register.*` calls are made in `setup()` and are active only while your 
 | `adminSection({ slug, label, permission })` | An admin tab linking to `/admin/m/<id>/<slug>`. Serve the page from `ctx.adminRoutes`. | `achievements` |
 | `modQueue({ id, label, href, permission, count })` | A queue in the moderation overview and the staff badge. | |
 | `adminUserPanel({ id, title, permission, order, render })` | A panel on Admin › Users › member. | `achievements` |
+| `threadPanel({ id, order, render })` | *(SDK 1.1)* A box above a thread's posts. `render({ viewer, thread, ctx })` returns `null` for threads it doesn't care about. | `lan-bookings` |
 
 Main-nav icons available: `home forums new search members messages rules calendar monitor cup seat pizza star`.
 
@@ -411,7 +413,8 @@ trust, and the module page says so. For module authors:
 
 ## Compatibility and versioning
 
-- `SDK_VERSION` (currently **1.0.0**) follows semver. **Minor** releases add exports, hooks or extension points.
+- `SDK_VERSION` (currently **1.1.0**) follows semver. 1.1 added `services.forums` and the `threadPanel` extension
+  point; modules using them declare `sdk: "^1.1.0"`. **Minor** releases add exports, hooks or extension points.
   **Major** releases may remove or change them, and are announced in the [changelog](../CHANGELOG.md) with migration
   notes.
 - Declare the range you tested against in `sdk` (e.g. `"^1.0.0"`). A module whose range doesn't match is shown as

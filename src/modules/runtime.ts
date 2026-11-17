@@ -156,6 +156,7 @@ function makeContext(m: LoadedModule): ModuleContext {
       adminSection: (s) => registries.adminSections.add(owner, { ...s, href: `/admin/m/${id}/${s.slug}` }),
       modQueue: (q) => registries.modQueues.add(owner, { ...q, permission: q.permission }),
       adminUserPanel: (p) => registries.adminUserPanels.add(owner, p),
+      threadPanel: (p) => registries.threadPanels.add(owner, p),
     },
     async render(c, title, body, opts) { const { page } = await import('../web/render.tsx'); return page(c as any, title, body, opts ?? {}); },
     async renderAdmin(c, title, permission, body) { const { adminShell } = await import('../routes/admin.tsx'); return adminShell(c as any, title, permission as any, body); },
@@ -361,6 +362,9 @@ export function themeStylesheet(themeId: string): string | null {
 }
 
 /** Test helper: forget loaded modules so a test can load a custom set. */
+/** Internal (tests, core tools): a module's exposed API regardless of declarations. Modules use ctx.use(). */
+export function exposedApi<T = unknown>(id: string): T | null { return (exposed.get(id) as T) ?? null; }
+
 export function resetModulesForTests() {
   loaded = false; modules = []; order = []; enabledState = new Map(); exposed.clear();
   for (const r of Object.values(registries)) for (const e of r.entries()) if (e.owner !== CORE) r.removeOwner(e.owner);

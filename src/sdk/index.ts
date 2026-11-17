@@ -38,6 +38,31 @@ import { getSetting } from '../services/settings.ts';
 import { publish } from '../services/events.ts';
 import { getDb, schema } from '../db/client.ts';
 import { hit as rateLimitHit } from '../lib/ratelimit.ts';
+import { forumById, createThread as coreCreateThread, setThreadFlags, forumsForMoveSelect } from '../services/forums.ts';
+import { ServiceError as CoreServiceError } from '../services/users.ts';
+import type { Viewer } from '../services/viewer.ts';
+
+/**
+ * Forum actions for modules (SDK 1.1). They always act AS the given viewer and run every core check (permissions,
+ * posting policy, rate limits, restricted terms), so a module can't post where the member couldn't.
+ */
+const forums = {
+  /** Forums the viewer can see and start threads in, in forum-index order. */
+  async postable(viewer: Viewer): Promise<{ id: number; name: string }[]> {
+    const out: { id: number; name: string }[] = [];
+    for (const f of await forumsForMoveSelect(viewer)) if (await viewer.can('thread.create', f.id)) out.push(f);
+    return out;
+  },
+  /** Start a thread as the viewer. Throws ServiceError with a user-facing message when not allowed. */
+  async createThread(viewer: Viewer, forumId: number, input: { title: string; body: string }): Promise<{ threadId: number; url: string; held: boolean }> {
+    const forum = await forumById(forumId);
+    if (!forum) throw new CoreServiceError('Forum not found.', 404);
+    const { thread } = await coreCreateThread(viewer, forum, { title: input.title, body: input.body });
+    return { threadId: thread.id, url: `/t/${thread.id}-${thread.slug}`, held: thread.state === 'held' };
+  },
+  /** Make a thread sticky (or not). Needs the viewer's thread-moderation permission in that forum. */
+  setSticky: (viewer: Viewer, threadId: number, sticky: boolean) => setThreadFlags(viewer, threadId, { isSticky: sticky }),
+};
 
 export const services = {
   users: { getById: getUserById, getByUsername: getUserByUsername, cards: userCards },
@@ -51,6 +76,8 @@ export const services = {
   push: publish,
   /** Count an attempt against a limit; returns { ok, retryAfter }. Shared across instances on PostgreSQL. */
   rateLimit: rateLimitHit,
+  /** SDK 1.1: start threads and make them sticky, as the viewer. */
+  forums,
 };
 
 /** OAuth/OIDC helpers for auth-provider modules (core owns state, PKCE, nonce and account linking). */
