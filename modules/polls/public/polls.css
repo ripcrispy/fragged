@@ -1,0 +1,42 @@
+/* Polls: theme tokens only. */
+.poll-box { border-color: var(--accent); }
+.poll-question { margin: 0 0 2px; font-size: 1.05rem; }
+.poll-meta { margin: 0 0 8px; }
+.poll-options { border: 0; margin: 0 0 6px; padding: 0; display: grid; gap: 4px; }
+.poll-option { display: flex; gap: 8px; align-items: center; padding: 6px 8px; border: 1px solid var(--border-soft); border-radius: var(--radius); background: var(--surface-alt); cursor: pointer; }
+.poll-option:hover { border-color: var(--accent); }
+.poll-results { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 8px; }
+.poll-result-head { display: flex; justify-content: space-between; gap: 12px; }
+.poll-count { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.poll-yours { margin-left: 6px; }
+.poll-bar { display: block; height: 10px; margin-top: 3px; background: var(--surface-alt); border: 1px solid var(--border-soft); border-radius: var(--radius); overflow: hidden; }
+.poll-fill { display: block; height: 100%; background: var(--accent); }
+.poll-results li.is-mine .poll-fill { background: var(--ok); }
+.poll-voters { margin-top: 2px; }
+.poll-change { margin: 4px 0 8px; }
+.poll-change > summary { cursor: pointer; }
+.poll-controls { display: flex; gap: 6px; flex-wrap: wrap; border-top: 1px solid var(--border-soft); padding-top: 8px; }
+.poll-add { margin: 0 0 8px; }
+.poll-w-0 { width: 0%; }
+.poll-w-5 { width: 5%; }
+.poll-w-10 { width: 10%; }
+.poll-w-15 { width: 15%; }
+.poll-w-20 { width: 20%; }
+.poll-w-25 { width: 25%; }
+.poll-w-30 { width: 30%; }
+.poll-w-35 { width: 35%; }
+.poll-w-40 { width: 40%; }
+.poll-w-45 { width: 45%; }
+.poll-w-50 { width: 50%; }
+.poll-w-55 { width: 55%; }
+.poll-w-60 { width: 60%; }
+.poll-w-65 { width: 65%; }
+.poll-w-70 { width: 70%; }
+.poll-w-75 { width: 75%; }
+.poll-w-80 { width: 80%; }
+.poll-w-85 { width: 85%; }
+.poll-w-90 { width: 90%; }
+.poll-w-95 { width: 95%; }
+.poll-w-100 { width: 100%; }
+.poll-peek { margin: 4px 0 8px; } .poll-peek > summary { cursor: pointer; margin-bottom: 6px; }
+.poll-peek { margin: 4px 0 8px; } .poll-peek > summary { cursor: pointer; margin-bottom: 6px; }
