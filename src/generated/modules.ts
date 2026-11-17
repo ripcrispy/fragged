@@ -5,26 +5,28 @@ import type { InstalledModule } from '../modules/runtime.ts';
 import local0 from '../../modules/achievements/index.tsx';
 import local1 from '../../modules/caffeine-tracker/index.tsx';
 import local2 from '../../modules/dev-auth/index.tsx';
-import local3 from '../../modules/lan-intranet/index.tsx';
-import local4 from '../../modules/lan-pizza/index.tsx';
-import local5 from '../../modules/lan-seating/index.tsx';
-import local6 from '../../modules/media-embeds/index.ts';
-import local7 from '../../modules/oauth-providers/index.ts';
-import local8 from '../../modules/profile-spotify/index.tsx';
-import local9 from '../../modules/retro-themes/index.ts';
-import local10 from '../../modules/theme-pack/index.ts';
+import local3 from '../../modules/lan-event-access/index.tsx';
+import local4 from '../../modules/lan-intranet/index.tsx';
+import local5 from '../../modules/lan-pizza/index.tsx';
+import local6 from '../../modules/lan-seating/index.tsx';
+import local7 from '../../modules/media-embeds/index.ts';
+import local8 from '../../modules/oauth-providers/index.ts';
+import local9 from '../../modules/profile-spotify/index.tsx';
+import local10 from '../../modules/retro-themes/index.ts';
+import local11 from '../../modules/theme-pack/index.ts';
 void createRequire;
 
 export const installedModules: InstalledModule[] = [
   { def: local0, dir: path.resolve('modules', "achievements"), source: 'local' },
   { def: local1, dir: path.resolve('modules', "caffeine-tracker"), source: 'local' },
   { def: local2, dir: path.resolve('modules', "dev-auth"), source: 'local' },
-  { def: local3, dir: path.resolve('modules', "lan-intranet"), source: 'local' },
-  { def: local4, dir: path.resolve('modules', "lan-pizza"), source: 'local' },
-  { def: local5, dir: path.resolve('modules', "lan-seating"), source: 'local' },
-  { def: local6, dir: path.resolve('modules', "media-embeds"), source: 'local' },
-  { def: local7, dir: path.resolve('modules', "oauth-providers"), source: 'local' },
-  { def: local8, dir: path.resolve('modules', "profile-spotify"), source: 'local' },
-  { def: local9, dir: path.resolve('modules', "retro-themes"), source: 'local' },
-  { def: local10, dir: path.resolve('modules', "theme-pack"), source: 'local' },
+  { def: local3, dir: path.resolve('modules', "lan-event-access"), source: 'local' },
+  { def: local4, dir: path.resolve('modules', "lan-intranet"), source: 'local' },
+  { def: local5, dir: path.resolve('modules', "lan-pizza"), source: 'local' },
+  { def: local6, dir: path.resolve('modules', "lan-seating"), source: 'local' },
+  { def: local7, dir: path.resolve('modules', "media-embeds"), source: 'local' },
+  { def: local8, dir: path.resolve('modules', "oauth-providers"), source: 'local' },
+  { def: local9, dir: path.resolve('modules', "profile-spotify"), source: 'local' },
+  { def: local10, dir: path.resolve('modules', "retro-themes"), source: 'local' },
+  { def: local11, dir: path.resolve('modules', "theme-pack"), source: 'local' },
 ];

@@ -1,0 +1,22 @@
+/* LAN Event Access: theme tokens only. */
+.lea-mac { font-family: var(--font-mono); font-size: 12px; }
+.lea-conn { margin: 0 0 10px; }
+.lea-desk .stats-row { margin-bottom: 12px; }
+.lea-actions { text-align: right; white-space: nowrap; }
+.lea-manual { margin-top: 10px; }
+.lea-manual > summary { cursor: pointer; }
+.lea-totals { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0 0 8px; }
+.lea-device { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0 0 8px; }
+.lea-device dt { font-weight: bold; }
+.lea-device dd { margin: 0; }
+.lea-new { border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; }
+.lea-new legend { font-weight: bold; padding: 0 4px; }
+.lea-new[hidden] { display: none; }
+/* At the door the desk is often a phone or tablet: stack the device tables into cards so the buttons stay on screen. */
+@media (max-width: 640px) {
+  .data-table.lea-stack thead { display: none; }
+  .data-table.lea-stack tr { display: block; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  .data-table.lea-stack td { display: block; padding: 2px 0; border: 0; background: none; }
+  .data-table.lea-stack td[data-label]::before { content: attr(data-label) ": "; color: var(--text-muted); }
+  .data-table.lea-stack td.lea-actions { text-align: left; padding-top: 6px; }
+}
