@@ -1,5 +1,5 @@
 /**
- * Demo content for the LAN-party modules (seating, intranet, caffeine tracker, pizza). Enables them.
+ * Demo content for the LAN-party modules (seating, intranet, caffeine tracker, pizza, event access). Enables them.
  * Safe to re-run: each part is skipped when its demo data already exists.
  *   npx tsx scripts/demo-lan.ts     (development only; run after `npm run seed`)
  */
@@ -14,7 +14,7 @@ setDb(await createDb());
 await ensureBootstrap();
 const { loadModules, syncModules, setModuleEnabled, saveModuleSettings } = await import('../src/modules/runtime.ts');
 await loadModules(); await syncModules();
-for (const id of ['lan-seating', 'caffeine-tracker', 'lan-pizza', 'lan-intranet']) await setModuleEnabled(id, true);
+for (const id of ['lan-seating', 'caffeine-tracker', 'lan-pizza', 'lan-intranet', 'lan-event-access']) await setModuleEnabled(id, true); // event access starts in demo mode
 const { events, book } = await import('../modules/lan-seating/service.ts');
 const { listDrinks, logDrink } = await import('../modules/caffeine-tracker/service.ts');
 const pizza = await import('../modules/lan-pizza/service.ts');

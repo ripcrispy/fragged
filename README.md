@@ -73,6 +73,7 @@ core.
 | [`lan-intranet`](modules/lan-intranet) | Event-day page: announcements, countdown, live game-server status, schedule, Wi-Fi | off |
 | [`caffeine-tracker`](modules/caffeine-tracker) | A playful caffeine leaderboard, from "Decaf Ghost" to "GO TO HOSPITAL" | off |
 | [`lan-pizza`](modules/lan-pizza) | Group food orders: members order, pay organisers in cash, organisers tick it off and order by hand | off |
+| [`lan-event-access`](modules/lan-event-access) | Door-desk network access: confirm entry payment, then move the device from the staging DHCP range onto the LAN (OPNsense, pfSense) | off |
 
 ## Screenshots
 

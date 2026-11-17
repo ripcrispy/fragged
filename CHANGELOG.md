@@ -21,6 +21,9 @@ The module SDK has its own version (`SDK_VERSION`, see [docs/MODULES.md](docs/MO
 - New LAN-party modules: `lan-seating` (seat maps and booking), `lan-intranet` (announcements, countdown,
   game-server status, schedule, Wi-Fi), `caffeine-tracker` (caffeine leaderboard with half-life decay) and
   `lan-pizza` (group food orders paid in cash, with payment tracking, shopping list and arrival notifications).
+- `lan-event-access` module: a door desk that records entry payments and approves attendees' devices on the
+  firewall, moving them from a staging DHCP range to the LAN. Supports OPNsense (Kea, Dnsmasq, legacy ISC via a
+  firewall alias) and pfSense (REST API package), with a demo mode.
 - `retro-themes` module: Millennium Desktop, Cartridge, Arcade Blue, LAN Party and Bulletin '06 themes.
 - `pizza` main-navigation icon.
 
