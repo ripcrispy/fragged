@@ -24,6 +24,9 @@ import { PROFILE_COLOR_PRESETS, profilePalette } from '../lib/color.ts';
 import { isValidTimezone } from '../lib/time.ts';
 import { securityEvent, audit } from '../services/audit.ts';
 import { rateLimit } from '../services/forums.ts';
+import * as Privacy from '../services/privacy.ts';
+import { hit as rateLimitHit } from '../lib/ratelimit.ts';
+import { registries } from '../modules/registry.ts';
 
 export const settingsRoutes = new Hono<Env>();
 const tz = (ctx: PageCtx) => ctx.viewer.user?.timezone ?? 'UTC';
@@ -31,6 +34,7 @@ const tz = (ctx: PageCtx) => ctx.viewer.user?.timezone ?? 'UTC';
 const TABS: [string, string][] = [
   ['/settings', 'Profile'], ['/settings/images', 'Avatar & cover'], ['/settings/top-friends', 'Top Friends'], ['/settings/preferences', 'Preferences'],
   ['/settings/privacy', 'Privacy'], ['/settings/notifications', 'Notifications'], ['/settings/blocked', 'Blocked & muted'], ['/settings/account', 'Account'], ['/settings/security', 'Security'],
+  ['/settings/data', 'Your data'],
 ];
 
 async function settingsPage(c: C, title: string, body: Child) {
@@ -363,12 +367,8 @@ settingsRoutes.get('/settings/account', async (c) => {
         </form>
       </Box>
       {warnings.length ? <Box title="Warnings on your account" headingLevel={2}><ul class="plain-list">{warnings.map((w) => <li><Time d={w.createdAt} tz={tz(ctx)} mode="date" /> — {w.reason}{w.expiresAt ? <span class="muted"> (expires <Time d={w.expiresAt} tz={tz(ctx)} mode="date" />)</span> : null}</li>)}</ul></Box> : null}
-      <Box title="Close account" headingLevel={2} className="danger-zone">
-        <p>Closing your account signs you out everywhere, removes your profile, avatar, email address and sign-in methods, and shows your past posts as by “Former member”. Forum posts and direct messages you've already sent are kept so conversations stay intact (see the <a href="/pages/privacy">privacy policy</a> for erasure requests).</p>
-        <form method="post" action="/settings/account/close" class="form-grid" data-confirm="Close your account permanently? This cannot be undone."><Csrf ctx={ctx} />
-          <Field label={`Type your username (${u.username}) to confirm`} name="confirmName" required />
-          <div class="form-actions"><button class="btn btn-danger">Close my account</button></div>
-        </form>
+      <Box title="Your data and deleting your account" headingLevel={2}>
+        <p>Download a copy of your data, erase parts of it, or delete your account on the <a href="/settings/data">Your data</a> page.</p>
       </Box>
     </>
   ));
@@ -396,27 +396,9 @@ settingsRoutes.post('/settings/account/password', async (c) => {
   if (!err) await A.markReauthenticated(v.session!.id);
   return c.redirect('/settings/account');
 });
-settingsRoutes.post('/settings/account/close', async (c) => {
-  const r = await requireReauth(c, '/settings/account'); if (r) return r;
-  const v = need(c);
-  const b = await form(c);
-  if (str(b.confirmName) !== v.user!.username) { setFlash(c, { type: 'error', text: 'The username you typed did not match.' }); return c.redirect('/settings/account'); }
-  const db = getDb();
-  const uid = v.user!.id;
-  await db.transaction(async (tx) => {
-    await tx.update(schema.users).set({ closedAt: new Date(), email: null, emailLower: null, passwordHash: null, username: `former-member-${uid}`, usernameLower: `former-member-${uid}` }).where(eq(schema.users.id, uid));
-    await tx.update(schema.userProfiles).set({ bio: '', signature: '', pronouns: null, location: null, customTitle: null, links: [], spotifyTrackUrl: null, spotifyPlaylistUrl: null, avatarUploadId: null, coverUploadId: null, backgroundColor: null }).where(eq(schema.userProfiles.userId, uid));
-    await tx.delete(schema.externalAccounts).where(eq(schema.externalAccounts.userId, uid));
-    await tx.delete(schema.friendships).where(eq(schema.friendships.userLowId, uid));
-    await tx.delete(schema.friendships).where(eq(schema.friendships.userHighId, uid));
-    await tx.update(schema.userSessions).set({ revokedAt: new Date() }).where(eq(schema.userSessions.userId, uid));
-  });
-  await emit('user.closed', { userId: uid });
-  await securityEvent(uid, 'account_closed', { ip: v.ip });
-  await audit(uid, 'user.close', { type: 'user', id: uid }, {}, v.ip);
-  deleteCookie(c, COOKIE.session, { path: '/' });
-  return c.redirect('/');
-});
+// The old “close account” form posts here; it now goes through the same checks as Your data › Delete account.
+settingsRoutes.post('/settings/account/close', (c) => deleteAccountHandler(c));
+
 
 // ─────────────── security ───────────────
 
@@ -478,3 +460,111 @@ settingsRoutes.post('/settings/security/unlink/:id', async (c) => {
 });
 
 export const _x = { and, inArray, getTopFriends };
+
+// ─────────────── your data ───────────────
+
+settingsRoutes.get('/settings/data', async (c) => {
+  const ctx = c.get('page');
+  const v = need(c);
+  const u = v.user!;
+  const lastAdmin = await Privacy.isLastSuperAdmin(u.id);
+  const addOns = registries.personalData.active().map((p) => p.label);
+  return settingsPage(c, 'Your data', (
+    <>
+      <Box title="Download your data" headingLevel={2}>
+        <p>Get a copy of everything we hold about your account as a JSON file: your account details, profile and settings, posts and threads, direct messages, friends, blocks and mutes, uploads, reactions, bookmarks, drafts, notifications, sign-in history, warnings{addOns.length ? <>, and data from {addOns.join(', ')}</> : null}.</p>
+        <p class="small muted">Uploaded images are listed with their addresses rather than included in the file. For your security we may ask for your password first.</p>
+        <form method="post" action="/settings/data/export"><Csrf ctx={ctx} /><button class="btn btn-primary">Download my data</button></form>
+      </Box>
+
+      <Box title="Delete your data" headingLevel={2}>
+        <p>Choose what to erase. Your account stays, so you can keep using the site. This can’t be undone, so download your data first if you want a copy.</p>
+        <form method="post" action="/settings/data/erase" class="form-grid" data-confirm="Erase the selected data permanently?"><Csrf ctx={ctx} />
+          <fieldset class="field data-parts"><legend>Erase</legend>
+            {(Object.entries(Privacy.ERASE_PARTS) as [Privacy.ErasePart, { label: string; hint: string }][]).filter(([k]) => k !== 'modules' || addOns.length)
+              .map(([k, p]) => <Checkbox label={p.label} name="parts" value={k} hint={k === 'modules' ? `${p.hint} (${addOns.join(', ')})` : p.hint} />)}
+          </fieldset>
+          <Field label={`Type your username (${u.username}) to confirm`} name="confirmName" required autocomplete="off" />
+          <div class="form-actions"><button class="btn btn-danger">Erase selected data</button></div>
+        </form>
+        <p class="small muted">We keep security events and the audit log (they protect your account and the community), moderation records, and reports other members made. Payment records that add-ons must keep are anonymised. See the <a href="/pages/privacy">privacy policy</a>.</p>
+      </Box>
+
+      <Box title="Delete your account" headingLevel={2} className="danger-zone" id="delete-account">
+        {lastAdmin ? (
+          <>
+            <Notice type="warn" title="You’re the only full administrator">Someone has to be able to run the site after you leave. Make another member a full administrator first, then come back to delete your account.</Notice>
+            <form method="post" action="/settings/data/handover" class="form-grid"><Csrf ctx={ctx} />
+              <Field label="Member to make a full administrator" name="username" required maxlength={40} autocomplete="off" hint="They need a verified email address. They get full access straight away and are told about it." attrs={{ 'data-member-autocomplete': '', list: 'handover-list' }} />
+              <datalist id="handover-list" />
+              <div class="form-actions"><button class="btn btn-primary">Make them a full administrator</button></div>
+            </form>
+          </>
+        ) : (
+          <>
+            <p>Deleting your account signs you out everywhere and removes your profile, avatar, email address, date of birth, password and sign-in methods. Your username is replaced with “former member”.</p>
+            <p>Your posts and messages stay so conversations make sense, shown as by a former member, unless you also erase them below.</p>
+            <form method="post" action="/settings/data/delete-account" class="form-grid" data-confirm="Delete your account permanently? This cannot be undone."><Csrf ctx={ctx} />
+              <Checkbox label="Also erase everything I’ve written and uploaded" name="erase" hint="Posts, threads, direct messages, images, activity, friends and add-on data, as in “Delete your data” above." />
+              <Field label={`Type your username (${u.username}) to confirm`} name="confirmName" required autocomplete="off" />
+              <div class="form-actions"><button class="btn btn-danger">Delete my account</button></div>
+            </form>
+          </>
+        )}
+      </Box>
+    </>
+  ));
+});
+
+settingsRoutes.post('/settings/data/export', async (c) => {
+  const r = await requireReauth(c, '/settings/data'); if (r) return r;
+  const v = need(c);
+  const lim = await rateLimitHit(`data-export:${v.user!.id}`, { max: 5, windowSec: 3600 });
+  if (!lim.ok) { setFlash(c, { type: 'error', text: `You’ve downloaded your data several times recently. Try again in ${Math.ceil(lim.retryAfter / 60)} minutes.` }); return c.redirect('/settings/data'); }
+  const data = await Privacy.exportUserData(v.user!.id);
+  await securityEvent(v.user!.id, 'data_exported', { ip: v.ip, userAgent: v.userAgent });
+  const day = new Date().toISOString().slice(0, 10);
+  c.header('Content-Type', 'application/json; charset=utf-8');
+  c.header('Content-Disposition', `attachment; filename="fragged-data-${v.user!.username.replace(/[^\w-]/g, '_')}-${day}.json"`);
+  c.header('Cache-Control', 'no-store');
+  return c.body(JSON.stringify(data, null, 2));
+});
+
+settingsRoutes.post('/settings/data/erase', async (c) => {
+  const r = await requireReauth(c, '/settings/data'); if (r) return r;
+  const v = need(c);
+  const b = await form(c);
+  if (str(b.confirmName) !== v.user!.username) { setFlash(c, { type: 'error', text: 'The username you typed did not match.' }); return c.redirect('/settings/data'); }
+  const parts = new Set(arr(b.parts).filter((p): p is Privacy.ErasePart => p in Privacy.ERASE_PARTS));
+  if (!parts.size) { setFlash(c, { type: 'error', text: 'Choose at least one kind of data to erase.' }); return c.redirect('/settings/data'); }
+  try {
+    const done = await Privacy.eraseUserData(v.user!.id, parts, { ip: v.ip, userAgent: v.userAgent });
+    const kept = done.messagesKept ? ` ${done.messagesKept} message${done.messagesKept === 1 ? ' is' : 's are'} in a reported conversation and will be kept until moderators have reviewed it.` : '';
+    setFlash(c, { type: 'ok', text: `Erased: ${[...parts].map((p) => Privacy.ERASE_PARTS[p].label.toLowerCase()).join(', ')}.${kept}` });
+  } catch (e) { if (e instanceof ServiceError) setFlash(c, { type: 'error', text: e.message }); else throw e; }
+  return c.redirect('/settings/data');
+});
+
+settingsRoutes.post('/settings/data/handover', async (c) => {
+  const r = await requireReauth(c, '/settings/data'); if (r) return r;
+  const v = need(c);
+  try {
+    const t = await Privacy.grantSuperAdmin(v, str((await form(c)).username));
+    await N.notify(t.id, 'moderation', v.user!.id, `${v.user!.username} made you a full administrator.`, '/admin');
+    setFlash(c, { type: 'ok', text: `${t.username} is now a full administrator. You can delete your account.` });
+  } catch (e) { if (e instanceof ServiceError) setFlash(c, { type: 'error', text: e.message }); else throw e; }
+  return c.redirect('/settings/data#delete-account');
+});
+
+async function deleteAccountHandler(c: C) {
+  const r = await requireReauth(c, '/settings/data'); if (r) return r;
+  const v = need(c);
+  const b = await form(c);
+  if (str(b.confirmName) !== v.user!.username) { setFlash(c, { type: 'error', text: 'The username you typed did not match.' }); return c.redirect('/settings/data#delete-account'); }
+  try { await Privacy.deleteAccount(v, { eraseContent: bool(b.erase) }); }
+  catch (e) { if (e instanceof ServiceError) { setFlash(c, { type: 'error', text: e.message }); return c.redirect('/settings/data#delete-account'); } throw e; }
+  deleteCookie(c, COOKIE.session, { path: '/' });
+  setFlash(c, { type: 'ok', text: 'Your account has been deleted. Thanks for being part of the community.' });
+  return c.redirect('/');
+}
+settingsRoutes.post('/settings/data/delete-account', (c) => deleteAccountHandler(c));

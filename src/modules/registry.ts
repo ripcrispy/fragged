@@ -7,7 +7,7 @@
  */
 import type {
   ActionHooks, FilterHooks, ThemeDef, AuthProviderDef, MediaProviderDef, ProfileSection, ProfileSettingsSection,
-  NavItem, AdminSection, ModQueueSource, AdminUserPanel, ThreadPanel,
+  NavItem, AdminSection, ModQueueSource, AdminUserPanel, ThreadPanel, PersonalDataSource,
 } from '../sdk/types.ts';
 import { log } from '../lib/log.ts';
 
@@ -52,6 +52,7 @@ export const registries = {
   modQueues: new Registry<ModQueueSource>('moderation queues', (q) => q.id),
   adminUserPanels: new Registry<AdminUserPanel>('admin user panels', (p) => p.id),
   threadPanels: new Registry<ThreadPanel>('thread panels', (p) => p.id),
+  personalData: new Registry<PersonalDataSource>('personal data', (p) => p.id),
 };
 /** Theme → owning module (for stylesheet inclusion) is available via registries.themes.ownerOf(id). */
 

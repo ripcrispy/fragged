@@ -6,7 +6,7 @@ import {
 } from '../../src/sdk/index.ts';
 import { LEVELS, levelFor, mgAt, type Level, type ModelOptions } from './model.ts';
 import {
-  drinks, CATEGORIES, LIMITS, seedDrinks, listDrinks, logDrink, deleteLog, currentFor, leaderboard, topDrinks, isHidden, setHidden, forgetUser,
+  drinks, CATEGORIES, LIMITS, seedDrinks, listDrinks, logDrink, deleteLog, currentFor, leaderboard, topDrinks, isHidden, setHidden, forgetUser, logs,
   type BoardKind, type BoardRow, type Drink,
 } from './service.ts';
 
@@ -84,11 +84,11 @@ function DrinkSelect({ list }: { list: Drink[] }) {
 export default defineModule({
   id: 'caffeine-tracker',
   name: 'Caffeine tracker',
-  version: '1.0.0',
+  version: '1.1.0',
   description: 'A playful LAN-party caffeine leaderboard. Members log drinks from a catalogue of typical caffeine amounts; levels decay with a realistic half-life, from "Decaf Ghost" to "GO TO HOSPITAL". Just for fun — not medical advice.',
   author: 'Fragged Forums contributors',
   license: 'AGPL-3.0-or-later',
-  sdk: '^1.0.0',
+  sdk: '^1.2.0',
   enabledByDefault: false,
   migrations: 'migrations',
   assets: 'public',
@@ -132,6 +132,14 @@ export default defineModule({
     ctx.register.navItem({ href: '/m/caffeine-tracker', label: 'Caffeine', icon: 'cup', area: 'main', order: 66, visible: (v) => v.can(P.view) });
     ctx.register.adminSection({ slug: 'drinks', label: 'Caffeine drinks', permission: P.manage });
     ctx.hooks.on('user.closed', async ({ userId }) => { await forgetUser(userId); });
+    ctx.register.personalData({
+      id: 'caffeine-tracker', label: 'Caffeine tracker',
+      export: async (userId) => ({
+        hiddenFromLeaderboards: await isHidden(userId),
+        drinks: await database.db().select({ drink: logs.drinkName, servings: logs.servings, mg: logs.mg, consumed: logs.consumedAt }).from(logs).where(eq(logs.userId, userId)),
+      }),
+      erase: (userId) => forgetUser(userId),
+    });
 
     ctx.register.profileSection({
       id: 'caffeine', column: 'side', order: 45,

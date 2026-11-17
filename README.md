@@ -46,7 +46,10 @@ core.
 - Profiles with avatars, cover images, accent colour, signatures, Top Friends, friends-only comments and privacy
   controls.
 - Friends, blocking and muting; a live friends pane with presence.
-- Persistent, append-only direct messages in a bottom dock, with image attachments and per-conversation mute.
+- Persistent direct messages in a bottom dock, with image attachments and per-conversation mute. Messages can't be
+  edited; senders can erase them, except in a conversation under report.
+- Your data: members download everything held about them as JSON, erase chosen parts, or delete their account.
+  The last full administrator must hand over before leaving.
 - Community emoji and GIF submissions with an approval queue.
 - Notifications (in-app and real-time), subscriptions, bookmarks and full-text search.
 - Moderation: reports, held-content queues, warnings, suspensions and bans, moderator notes, mandatory restricted

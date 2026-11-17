@@ -102,11 +102,11 @@ async function mapData(c: RequestContext | { get(k: 'page'): PageCtx }, e: SeatE
 export default defineModule({
   id: 'lan-seating',
   name: 'LAN party seat booking',
-  version: '1.1.0',
+  version: '1.2.0',
   description: 'Draw a seat map for each LAN party and let attendees book their seat. Organisers can reserve, assign and move seats. Other modules can limit which seats a member may book (lan-bookings uses this for booking types).',
   author: 'Fragged Forums contributors',
   license: 'AGPL-3.0-or-later',
-  sdk: '^1.0.0',
+  sdk: '^1.2.0',
   enabledByDefault: false,
   migrations: 'migrations',
   assets: 'public',
@@ -139,6 +139,12 @@ export default defineModule({
     ctx.register.navItem({ href: '/m/lan-seating', label: 'Seating', icon: 'seat', area: 'main', order: 65, visible: (v) => v.can(P.view) });
     ctx.register.adminSection({ slug: 'events', label: 'LAN seating', permission: P.manage });
     ctx.hooks.on('user.closed', async ({ userId }) => { await db().delete(bookings).where(eq(bookings.userId, userId)); });
+    ctx.register.personalData({
+      id: 'lan-seating', label: 'LAN seat bookings',
+      export: async (userId) => (await db().select({ event: events.name, seat: bookings.seat, booked: bookings.createdAt, assignedByOrganiser: bookings.assignedBy })
+        .from(bookings).innerJoin(events, eq(events.id, bookings.eventId)).where(eq(bookings.userId, userId))).map((b) => ({ ...b, assignedByOrganiser: b.assignedByOrganiser !== null })),
+      erase: async (userId) => { await db().delete(bookings).where(eq(bookings.userId, userId)); },
+    });
 
     ctx.register.profileSection({
       id: 'lan-seat', column: 'side', order: 40,

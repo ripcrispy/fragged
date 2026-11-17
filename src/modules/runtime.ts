@@ -157,6 +157,7 @@ function makeContext(m: LoadedModule): ModuleContext {
       modQueue: (q) => registries.modQueues.add(owner, { ...q, permission: q.permission }),
       adminUserPanel: (p) => registries.adminUserPanels.add(owner, p),
       threadPanel: (p) => registries.threadPanels.add(owner, p),
+      personalData: (p) => registries.personalData.add(owner, p),
     },
     async render(c, title, body, opts) { const { page } = await import('../web/render.tsx'); return page(c as any, title, body, opts ?? {}); },
     async renderAdmin(c, title, permission, body) { const { adminShell } = await import('../routes/admin.tsx'); return adminShell(c as any, title, permission as any, body); },

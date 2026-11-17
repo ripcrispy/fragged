@@ -6,7 +6,7 @@ import AxeBuilder from '@axe-core/playwright';
 const base = process.env.BASE ?? 'http://localhost:3000';
 const themes = (process.env.THEMES ?? 'classic,dark,light,contrast,frag,millennium,cartridge,arcade,lanparty,bulletin').split(',');
 const guestPages = ['/', '/forums', '/f/general-chat', '/t/2', '/login', '/register', '/rules', '/members', '/search?q=test', '/u/PixelWren', '/emoji', '/m/achievements', '/m/lan-intranet', '/m/lan-seating', '/m/lan-seating/frag-night-01', '/m/caffeine-tracker', '/m/lan-pizza'];
-const userPages = ['/', '/t/2', '/t/5', '/u/PixelWren', '/messages', '/friends', '/notifications', '/settings', '/settings/preferences', '/settings/security', '/f/general-chat/new', '/t/2/reply', '/m/lan-intranet', '/m/lan-seating/frag-night-01', '/m/caffeine-tracker', '/m/lan-pizza', '/m/lan-event-access', '/m/lan-bookings', '/m/lan-bookings/frag-night-01'];
+const userPages = ['/', '/t/2', '/t/5', '/u/PixelWren', '/messages', '/friends', '/notifications', '/settings', '/settings/preferences', '/settings/security', '/settings/data', '/f/general-chat/new', '/t/2/reply', '/m/lan-intranet', '/m/lan-seating/frag-night-01', '/m/caffeine-tracker', '/m/lan-pizza', '/m/lan-event-access', '/m/lan-bookings', '/m/lan-bookings/frag-night-01'];
 const b = await chromium.launch();
 const found = new Map();
 async function audit(page, label) {
