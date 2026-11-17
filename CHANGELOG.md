@@ -6,6 +6,9 @@ The module SDK has its own version (`SDK_VERSION`, see [docs/MODULES.md](docs/MO
 ## Unreleased
 
 ### Added
+- `polls` module: polls on forum threads with single or multiple choice, closing times, results shown always,
+  after voting or when the poll closes, optional public voters, and control by the creator and forum moderators.
+- **SDK 1.3.0**: `services.forums.thread(viewer, id)` for safely looking up a thread the viewer can see.
 - **Settings › Your data**: members can download everything held about their account as JSON, erase chosen parts
   of it (profile, posts and threads, sent messages, images, activity, connections, add-on data) while keeping the
   account, and delete their account with or without their content. The last full administrator must hand over
@@ -48,6 +51,9 @@ The module SDK has its own version (`SDK_VERSION`, see [docs/MODULES.md](docs/MO
 - README logo (`docs/assets/logo.svg`) and screenshots.
 
 ### Fixed
+- Module permissions granted to `member` now reach every signed-in group (Established Members, Contributors,
+  Moderators…), so a moderator-only account can use member features of modules. Applied when a module is
+  installed or upgraded.
 - The "Sticky:" label in thread lists now meets colour-contrast requirements on the highlighted row.
 - The admin dashboard's recent actions and the audit log show readable names for module actions
   ("LAN Event Access: Approve") instead of raw codes.

@@ -171,6 +171,7 @@ boundary for bundled modules.
 | `services.push(userId, event)` | Real-time hint to a member's open tabs. |
 | `services.coreSetting(key)` | Read a core site setting such as `site_name`. |
 | `services.forums.{postable,createThread,setSticky}` | *(SDK 1.1)* Forums the viewer may start threads in; start a thread **as the viewer**; make it sticky. Every core check applies (permissions, posting policy, rate limits, restricted terms), so a module can't post where the member couldn't. See `lan-bookings`. |
+| `services.forums.thread(viewer, id)` | *(SDK 1.3)* A thread the viewer may see (`{ id, forumId, userId, title, url, isLocked }`), or `null`. Use it before acting on a thread id from a request. See `polls`. |
 | `oidc.{verifyIdToken,fetchProfile,createRemoteJWKSet}` | For sign-in provider modules. |
 | `crypto.{hmac,sha256,safeEqual,randomToken}` | Keyed with the site's `APP_SECRET`. |
 | `form`, `str`, `int`, `bool`, `arr`, `setFlash` | Read form bodies safely; one-shot flash messages. |
@@ -260,7 +261,10 @@ permissions: {
 },
 ```
 
-Keys are namespaced to `<id>.<key>`. When the module is first installed, `grantTo` groups receive the permission.
+Keys are namespaced to `<id>.<key>`. When the module is first installed (and again when its version changes, for
+groups that don't have the permission yet), `grantTo` groups receive the permission. `'member'` means every
+signed-in group: Members, Established Members, Contributors, Moderators and any group you add; `'guest'` means
+visitors who aren't signed in.
 Administrators can then change it per group, per forum or per member in **Admin › Groups & permissions**, which lists
 module permissions next to core ones. Super-admins always pass. Suspended and banned members never pass anything
 except reading.
@@ -414,8 +418,9 @@ trust, and the module page says so. For module authors:
 
 ## Compatibility and versioning
 
-- `SDK_VERSION` (currently **1.2.0**) follows semver. 1.1 added `services.forums` and the `threadPanel` extension
-  point; 1.2 added the `personalData` extension point. Modules using them declare `sdk: "^1.1.0"` or `"^1.2.0"`. **Minor** releases add exports, hooks or extension points.
+- `SDK_VERSION` (currently **1.3.0**) follows semver. 1.1 added `services.forums` and the `threadPanel` extension
+  point; 1.2 added `personalData`; 1.3 added `services.forums.thread`. Modules using them declare the matching
+  range, e.g. `sdk: "^1.3.0"`. **Minor** releases add exports, hooks or extension points.
   **Major** releases may remove or change them, and are announced in the [changelog](../CHANGELOG.md) with migration
   notes.
 - Declare the range you tested against in `sdk` (e.g. `"^1.0.0"`). A module whose range doesn't match is shown as

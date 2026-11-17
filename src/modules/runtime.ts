@@ -232,8 +232,15 @@ async function grantDefaultPermissions(def: ModuleDefinition) {
   for (const [key, p] of Object.entries(def.permissions ?? {})) {
     const full = `${def.id}.${key}`;
     for (const slug of p.grantTo ?? []) {
-      await db.execute(sql`update user_groups set permissions = permissions || jsonb_build_object(${full}::text, true)
-        where slug = ${slug} and not (permissions ? ${full})`);
+      // 'member' means every signed-in group (Established, Contributors, Moderators…), not just the one named
+      // "member": otherwise a moderator-only account couldn't use features every member has.
+      if (slug === 'member') {
+        await db.execute(sql`update user_groups set permissions = permissions || jsonb_build_object(${full}::text, true)
+          where slug <> 'guest' and not is_super_admin and not (permissions ? ${full})`);
+      } else {
+        await db.execute(sql`update user_groups set permissions = permissions || jsonb_build_object(${full}::text, true)
+          where slug = ${slug} and not (permissions ? ${full})`);
+      }
     }
   }
   const { invalidatePermissionCache } = await import('../services/permissions.ts');

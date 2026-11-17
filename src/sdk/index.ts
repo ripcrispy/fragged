@@ -38,7 +38,7 @@ import { getSetting } from '../services/settings.ts';
 import { publish } from '../services/events.ts';
 import { getDb, schema } from '../db/client.ts';
 import { hit as rateLimitHit } from '../lib/ratelimit.ts';
-import { forumById, createThread as coreCreateThread, setThreadFlags, forumsForMoveSelect } from '../services/forums.ts';
+import { forumById, createThread as coreCreateThread, setThreadFlags, forumsForMoveSelect, loadThreadFor } from '../services/forums.ts';
 import { ServiceError as CoreServiceError } from '../services/users.ts';
 import type { Viewer } from '../services/viewer.ts';
 
@@ -59,6 +59,19 @@ const forums = {
     if (!forum) throw new CoreServiceError('Forum not found.', 404);
     const { thread } = await coreCreateThread(viewer, forum, { title: input.title, body: input.body });
     return { threadId: thread.id, url: `/t/${thread.id}-${thread.slug}`, held: thread.state === 'held' };
+  },
+  /**
+   * SDK 1.3: a thread the viewer is allowed to see, or null (missing, deleted for them, or in a forum they can't
+   * read). Use it before acting on a thread id that came from a request.
+   */
+  async thread(viewer: Viewer, threadId: number): Promise<{ id: number; forumId: number; userId: number; title: string; url: string; isLocked: boolean } | null> {
+    try {
+      const { thread } = await loadThreadFor(viewer, threadId);
+      return { id: thread.id, forumId: thread.forumId, userId: thread.userId, title: thread.title, url: `/t/${thread.id}-${thread.slug}`, isLocked: thread.isLocked };
+    } catch (e) {
+      if (e instanceof CoreServiceError && e.status >= 400 && e.status < 500) return null;
+      throw e;
+    }
   },
   /** Make a thread sticky (or not). Needs the viewer's thread-moderation permission in that forum. */
   setSticky: (viewer: Viewer, threadId: number, sticky: boolean) => setThreadFlags(viewer, threadId, { isSticky: sticky }),

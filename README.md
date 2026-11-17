@@ -43,6 +43,7 @@ core.
   split.
 - BBCode editor with live preview, quotes, spoilers, code, colour, click-to-load media embeds and link cards.
 - Tags and content-warning labels (spoilers, NSFW, sensitive topics) that readers opt into.
+- Polls on threads, with single or multiple choice, closing times and hidden-until-voted results (`polls` module).
 - Profiles with avatars, cover images, accent colour, signatures, Top Friends, friends-only comments and privacy
   controls.
 - Friends, blocking and muting; a live friends pane with presence.
@@ -70,6 +71,7 @@ core.
 | [`media-embeds`](modules/media-embeds) | YouTube, Vimeo and Spotify click-to-load embeds | on |
 | [`profile-spotify`](modules/profile-spotify) | A Spotify track or playlist on member profiles | on |
 | [`achievements`](modules/achievements) | Configurable badges awarded for activity | on |
+| [`polls`](modules/polls) | Polls on forum threads: single or multiple choice, closing times, results after voting or closing | on |
 | [`oauth-providers`](modules/oauth-providers) | Sign in with Google, Discord, Facebook, Apple, GitHub (when configured) | on |
 | [`dev-auth`](modules/dev-auth) | A fake identity provider for testing sign-in flows (development only) | on |
 | [`lan-seating`](modules/lan-seating) | LAN-party seat maps and seat booking | off |

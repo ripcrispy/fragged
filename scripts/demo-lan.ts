@@ -83,8 +83,26 @@ async function demoBookings() {
   console.log('Bookings demo: 3 booking types, crew and a sticky announcement thread.');
 }
 
+/** A poll on the announcement thread: which game for the tournament (skipped when it already has one). */
+async function demoPoll() {
+  const B = await import('../modules/lan-bookings/service.ts');
+  const Polls = await import('../modules/polls/service.ts');
+  const [ev] = await db.select().from(events).where(eq(events.slug, 'frag-night-01'));
+  const conf = ev ? await B.configFor(ev.id) : null;
+  if (!conf?.threadId || (await Polls.pollForThread(conf.threadId))) return;
+  const [admin] = await db.select().from(schema.users).where(eq(schema.users.username, 'Overseer'));
+  const poll = await Polls.createPoll(conf.threadId, admin.id, {
+    question: 'Which game should the 5v5 tournament be?', options: ['Counter-Strike 2', 'Valorant', 'Rocket League (3v3, sorry)', 'Team Fortress 2'],
+    maxChoices: 1, results: 'always', showVoters: false, allowChange: true, closesAt: new Date(now + 36 * H),
+  });
+  const opts = await Polls.optionsFor(poll.id);
+  const picks = [0, 0, 2, 0, 1, 2, 3];
+  for (const [i, u] of users.slice(0, picks.length).entries()) await Polls.vote(poll, u.id, [opts[picks[i]].id]).catch(() => {});
+  console.log('Poll demo: tournament game vote.');
+}
+
 const exists = await db.execute(sql`select 1 from mod_lan_seating_events where slug = 'frag-night-01'`);
-if (rowsOf(exists).length) { await demoBookings(); console.log('LAN demo content already present.'); await closeDb(); process.exit(0); }
+if (rowsOf(exists).length) { await demoBookings(); await demoPoll(); console.log('LAN demo content already present.'); await closeDb(); process.exit(0); }
 const start = new Date(Math.ceil((now + 2 * 24 * H) / H) * H);
 const iso = (d: Date) => d.toISOString().slice(0, 16);
 
@@ -126,6 +144,7 @@ const plan: [number, string, number, number][] = [
 resetLimits();
 for (const [ui, drink, servings, ago] of plan) if (users[ui]) await logDrink(users[ui].id, { drinkId: pick(drink), servings, minutesAgo: ago });
 await demoBookings();
+await demoPoll();
 const seatsTaken = (await db.select().from(bookings).where(eq(bookings.eventId, e.id))).length;
 console.log(`LAN demo ready: ${seatsTaken} seats booked, ${plan.length} drinks logged for ${users.length} members.`);
 await closeDb();
