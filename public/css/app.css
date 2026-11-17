@@ -285,7 +285,7 @@ details.box > summary .box-title::before { content: "▸ "; } details.box[open] 
 .thread-title.unread { font-weight: bold; }
 .goto-unread { font-size: 10px; font-weight: bold; color: var(--unread); }
 .prefix { font-weight: bold; font-size: 12px; }
-.prefix-announce { color: var(--danger); } .prefix-sticky { color: var(--accent-strong); }
+.prefix-announce { color: var(--danger); } .prefix-sticky { color: var(--warn); }
 .thread-pages { font-size: 10px; color: var(--text-muted); } .thread-pages a { margin: 0 2px; }
 .thread-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .thread-tags { display: inline-flex; gap: 3px; flex-wrap: wrap; margin-left: 4px; }
@@ -387,6 +387,7 @@ a.tag:hover { text-decoration: none; filter: brightness(1.08); }
 .cw-gate[open] > summary .btn { display: none; }
 .cw-icon { font-size: 20px; }
 .mod-tools { border-color: var(--warn); }
+.thread-panels > .box { margin-bottom: 8px; }
 .mod-grid { display: grid; gap: 8px; }
 .mod-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 .mini-posts { list-style: none; margin: 0; padding: 0; }

@@ -58,7 +58,7 @@ const playersOf = (st: ServerStatus | undefined) => (st?.online && st.maxPlayers
 export default defineModule({
   id: 'lan-intranet',
   name: 'LAN party intranet',
-  version: '1.1.0',
+  version: '1.2.0',
   description: 'An event-day landing page: announcements, countdown, game-server status, schedule, Wi-Fi details and widgets from other LAN modules. Every section is configurable.',
   author: 'Fragged Forums contributors',
   license: 'AGPL-3.0-or-later',
@@ -106,6 +106,24 @@ export default defineModule({
       if (s.audience === 'members' && !c.get('viewer').user) throw new ServiceError('Sign in to see the LAN intranet.', 401, 'login_required');
       return s;
     };
+
+    // For other modules (e.g. lan-bookings' announcement thread). Both follow the intranet's audience setting.
+    const audienceAllows = async (viewer: { user: unknown }) => (await ctx.settings.get<Settings>()).audience === 'everyone' || !!viewer.user;
+    ctx.expose({
+      /** Schedule items (sub-events) starting inside [from, to]; either bound may be null. */
+      async schedule(viewer: { user: unknown }, from: Date | null, to: Date | null) {
+        if (!(await audienceAllows(viewer))) return [];
+        const all = await db().select().from(schedule).orderBy(asc(schedule.startsAt));
+        return all.filter((e) => (!from || e.startsAt >= from) && (!to || e.startsAt <= to))
+          .map((e) => ({ title: e.title, startsAt: e.startsAt, endsAt: e.endsAt, location: e.location, notes: e.notes }));
+      },
+      /** Listed game servers with their last probe result. */
+      async servers(viewer: { user: unknown }) {
+        if (!(await audienceAllows(viewer))) return [];
+        const list = await db().select().from(servers).where(eq(servers.enabled, true)).orderBy(asc(servers.displayOrder), asc(servers.id));
+        return list.map((x) => { const st = status.get(x.id); return { name: x.name, game: x.game, notes: x.notes, connect: x.connect || (x.host && x.port ? `${x.host}:${x.port}` : ''), online: st ? st.online : null, label: statusLabel(st) }; });
+      },
+    });
 
     ctx.routes.get('/status.json', async (c) => {
       await gate(c);

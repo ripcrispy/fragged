@@ -1,0 +1,94 @@
+/* LAN event bookings: theme tokens only. */
+.lb-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.lb-cards > .box { margin: 0; }
+.lb-intro { font-size: 1.05rem; }
+.lb-stats { margin-bottom: 12px; }
+.lb-stat-link:hover { text-decoration: none; border-color: var(--accent); }
+.lb-types { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.lb-type { border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; background: var(--surface-alt); }
+.lb-type h3 { margin: 0 0 2px; font-size: 1rem; }
+.lb-type p { margin: 4px 0; }
+.lb-type.is-mine { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.lb-type.is-full { opacity: .75; }
+.lb-price { font-size: 1.3rem; font-weight: bold; font-family: var(--font-head); }
+.lb-forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; align-items: start; }
+.lb-forms > .box { margin: 0; }
+.lb-choice, .lb-sections { border: 1px solid var(--border); border-radius: var(--radius); padding: 6px 12px; }
+.lb-choice legend, .lb-sections legend { font-weight: bold; padding: 0 4px; }
+.lb-radio { display: flex; gap: 8px; align-items: baseline; padding: 4px 0; }
+.lb-mine.is-booked { border-color: var(--ok); }
+.lb-actions { text-align: right; white-space: nowrap; }
+.lb-actions .inline-form { display: inline-block; margin-left: 4px; }
+.lb-type-form { border-bottom: 1px solid var(--border-soft); padding-bottom: 10px; margin-bottom: 10px; }
+.lb-type-form.is-hidden { opacity: .7; }
+.lb-add > summary { cursor: pointer; font-weight: bold; }
+.lb-h3 { font-size: .95rem; margin: 12px 0 6px; }
+
+/* demand bars and the sign-ups chart */
+.lb-bar-col { width: 35%; }
+.lb-bar { display: flex; height: 12px; min-width: 120px; background: var(--surface-alt); border: 1px solid var(--border-soft); border-radius: var(--radius); overflow: hidden; }
+.lb-bar-booked { background: var(--ok); }
+.lb-bar-interested { background: var(--accent); opacity: .55; }
+.lb-days { list-style: none; display: flex; align-items: flex-end; gap: 3px; height: 90px; margin: 0; padding: 0 0 2px; border-bottom: 1px solid var(--border); }
+.lb-days li { flex: 1; height: 100%; display: flex; align-items: flex-end; }
+.lb-day-bar { display: flex; align-items: flex-end; width: 100%; background: var(--accent); opacity: .85; border-radius: 2px 2px 0 0; overflow: hidden; }
+.lb-day-booked { display: block; width: 100%; background: var(--ok); }
+.lb-legend { display: flex; align-items: center; gap: 6px; }
+.lb-key { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
+.lb-key-booked { background: var(--ok); }
+.lb-key-interested { background: var(--accent); opacity: .7; margin-left: 8px; }
+
+/* the panel on the announcement thread */
+.lb-panel { border-color: var(--accent); }
+.lb-panel-meta { margin: 0 0 6px; }
+.lb-panel-cta { margin: 0 0 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.lb-section { border-top: 1px solid var(--border-soft); padding: 6px 0; }
+.lb-section > summary { cursor: pointer; font-weight: bold; padding: 2px 0; }
+.lb-section > :not(summary) { margin-top: 6px; }
+.lb-crew { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 6px 0 0; }
+.lb-crew dt { font-weight: bold; }
+.lb-crew dd { margin: 0; }
+.lb-seat { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+.lb-panel-map .seatmap-embed { margin-top: 6px; }
+.lb-w-0 { width: 0%; }
+.lb-w-5 { width: 5%; }
+.lb-w-10 { width: 10%; }
+.lb-w-15 { width: 15%; }
+.lb-w-20 { width: 20%; }
+.lb-w-25 { width: 25%; }
+.lb-w-30 { width: 30%; }
+.lb-w-35 { width: 35%; }
+.lb-w-40 { width: 40%; }
+.lb-w-45 { width: 45%; }
+.lb-w-50 { width: 50%; }
+.lb-w-55 { width: 55%; }
+.lb-w-60 { width: 60%; }
+.lb-w-65 { width: 65%; }
+.lb-w-70 { width: 70%; }
+.lb-w-75 { width: 75%; }
+.lb-w-80 { width: 80%; }
+.lb-w-85 { width: 85%; }
+.lb-w-90 { width: 90%; }
+.lb-w-95 { width: 95%; }
+.lb-w-100 { width: 100%; }
+.lb-h-0 { height: 0%; }
+.lb-h-5 { height: 5%; }
+.lb-h-10 { height: 10%; }
+.lb-h-15 { height: 15%; }
+.lb-h-20 { height: 20%; }
+.lb-h-25 { height: 25%; }
+.lb-h-30 { height: 30%; }
+.lb-h-35 { height: 35%; }
+.lb-h-40 { height: 40%; }
+.lb-h-45 { height: 45%; }
+.lb-h-50 { height: 50%; }
+.lb-h-55 { height: 55%; }
+.lb-h-60 { height: 60%; }
+.lb-h-65 { height: 65%; }
+.lb-h-70 { height: 70%; }
+.lb-h-75 { height: 75%; }
+.lb-h-80 { height: 80%; }
+.lb-h-85 { height: 85%; }
+.lb-h-90 { height: 90%; }
+.lb-h-95 { height: 95%; }
+.lb-h-100 { height: 100%; }

@@ -9,6 +9,7 @@ LAN party network when it renews its lease (unplugging and replugging the cable 
 - **Members:** `/m/lan-event-access` ("Network access" in the user menu) lists their approved devices and payment
 - **Works with:** OPNsense (Kea DHCP, Dnsmasq or legacy ISC DHCP) and pfSense (with the REST API package), plus a
   **demo** mode that simulates a firewall so you can try the desk first
+- **Bookings:** with `lan-bookings` on, the desk checks booked members in and charges their booking price
 
 ## Desk workflow
 
@@ -24,6 +25,19 @@ LAN party network when it renews its lease (unplugging and replugging the cable 
 5. Organisers can **Revoke** a device. It drops back to the staging network when it next renews.
 6. **Sync with firewall** puts back any approvals the firewall has lost (a reboot, a config restore, someone
    deleting entries by hand). With the OPNsense ISC alias it also follows devices whose lease address changed.
+
+### With LAN event bookings
+
+When the `lan-bookings` module is on, the desk works from the booking list of the event being run (the soonest
+event taking bookings that hasn't ended yet):
+
+- **Booked for <event>** lists every booked member with their booking type, price and seat, and whether they've
+  arrived: *Not arrived*, or *Paid £30.00 · 2 devices*. Not-arrived members are listed first, and the stats show
+  how many booked members have arrived.
+- On the approve form, **Who is this device for?** lists booked members who haven't paid yet. Choosing one takes
+  their **booking price** (leave the amount empty, or type another amount), links the payment to their account and
+  notes their booking type and seat. Pick how they paid as usual: cash, card, paid in advance or free.
+- A member can only pay once. Their next device goes under **Already paid**.
 
 If the firewall refuses an approval, nothing is recorded: no device, no payment. The desk sees the firewall's reason
 and can try again. Two desks can't approve the same device or hand out the same address at the same time.

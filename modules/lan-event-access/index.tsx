@@ -7,8 +7,12 @@ import {
 import { BACKENDS, makeBackend, demoPlugIn, normaliseMac, parseRange, inRange, FirewallError, type BackendId, type BackendConfig } from './backends.ts';
 import {
   METHODS, TAKEN_AT_DOOR, STATE_LABELS, parseMoney, formatMoney, approveDevice, revokeDevice, deskState, syncWithFirewall, moneySummary,
-  devicesForUser, forgetUser, attendeeById, type Method, type DeviceState,
+  devicesForUser, forgetUser, attendeeById, listAttendees, type Method, type DeviceState,
 } from './service.ts';
+
+/** What the door desk reads from lan-bookings (optional): who has booked the event being run. */
+interface DoorBooking { userId: number; username: string; status: 'booked' | 'interested'; typeName: string; priceCents: number; seat: string | null; termsAccepted: boolean }
+interface BookingsApi { doorList(): Promise<{ event: { id: number; name: string; slug: string; startsAt: Date | null }; currency: string; bookings: DoorBooking[] } | null> }
 
 const rangeOk = (s: string) => parseRange(s) !== null;
 const settingsSchema = z.object({
@@ -32,12 +36,13 @@ const methodOptions = Object.entries(METHODS) as [string, string][];
 export default defineModule({
   id: 'lan-event-access',
   name: 'LAN Event Access',
-  version: '1.0.0',
+  version: '1.1.0',
   description: 'Door-desk network access for LAN parties. New devices get a staging address from your OPNsense or pfSense firewall; once the desk confirms payment, one click moves them into the LAN DHCP section (Kea reservation, Dnsmasq host, pfSense static mapping or an OPNsense firewall alias).',
   author: 'Fragged Forums contributors',
   license: 'AGPL-3.0-or-later',
   sdk: '^1.0.0',
   enabledByDefault: false,
+  optionalDependencies: { 'lan-bookings': '^1.1.0' },
   migrations: 'migrations',
   assets: 'public',
   styles: ['access.css'],
@@ -80,6 +85,12 @@ export default defineModule({
     const requireDesk = async (v: Viewer) => { if (!(await canDesk(v))) await v.require(P.desk); };
     const money = (cents: number, s: Settings) => formatMoney(cents, s.currency);
     const DESK = '/admin/m/lan-event-access/desk';
+    /** Bookings for the event at the door, when lan-bookings is on. Never breaks the desk if it fails. */
+    const doorList = async () => {
+      const api = ctx.use<BookingsApi>('lan-bookings');
+      if (!api) return null;
+      try { return await api.doorList(); } catch (e) { ctx.log.warn('lan-bookings door list failed', { error: String(e) }); return null; }
+    };
     const flashError = (c: RequestContext, e: unknown) => {
       // service and firewall errors are messages for the desk; anything else is a bug and goes to the error page
       if (e instanceof ServiceError || e instanceof FirewallError) { setFlash(c, { type: 'error', text: e.message }); return; }
@@ -124,6 +135,12 @@ export default defineModule({
       const st = await deskState(backend, s as BackendConfig);
       const sum = await moneySummary();
       const users = await services.users.cards(st.attendees.map((a) => a.userId).filter((x): x is number => x !== null));
+      const door = await doorList();
+      const booked = door?.bookings.filter((b) => b.status === 'booked') ?? [];
+      const paidBy = new Map(st.attendees.filter((a) => a.userId !== null).map((a) => [a.userId!, a]));
+      const arrived = booked.filter((b) => paidBy.has(b.userId)).length;
+      const bookedRows = [...booked].sort((a, b) => Number(paidBy.has(a.userId)) - Number(paidBy.has(b.userId)) || a.username.localeCompare(b.username));
+      const bookingMoney = (cents: number) => formatMoney(cents, door?.currency ?? s.currency);
       const staging = parseRange(s.stagingRange), approved = parseRange(s.approvedRange);
       const overlap = backend.assignsAddress && staging && approved && staging.start <= approved.end && approved.start <= staging.end;
       const tz = tzOf(page);
@@ -137,6 +154,7 @@ export default defineModule({
           <div class="stats-row">
             <Stat label="Waiting" value={String(st.waiting.length)} />
             <Stat label="Approved devices" value={String(st.approved.length)} />
+            {door ? <Stat label="Booked arrived" value={`${arrived} / ${booked.length}`} /> : null}
             <Stat label="Attendees" value={String(sum.attendees)} />
             <Stat label="Collected" value={money(sum.total, s)} />
           </div>
@@ -156,6 +174,18 @@ export default defineModule({
                 <div class="form-actions"><button class="btn btn-small">Continue</button></div>
               </form></details> : null}
           </Box>
+
+          {door ? <Box title={`Booked for ${door.event.name} (${booked.length})`} actions={<a class="btn btn-small" href={`/m/lan-bookings/${door.event.slug}`}>Booking page</a>}>
+            {bookedRows.length ? <div class="table-wrap"><table class="data-table lea-stack"><thead><tr><th>Member</th><th>Booking</th><th>Seat</th><th>At the door</th></tr></thead><tbody>
+              {bookedRows.map((b) => { const a = paidBy.get(b.userId); return <tr class={a ? 'lea-arrived' : ''}>
+                <td><strong>{b.username}</strong>{b.termsAccepted ? null : <div class="small muted">Hasn’t agreed to the rules yet</div>}</td>
+                <td data-label="Booking">{b.typeName} · {bookingMoney(b.priceCents)}</td>
+                <td class="lea-mac" data-label="Seat">{b.seat ?? <span class="muted">none yet</span>}</td>
+                <td data-label="At the door">{a ? <span class="tag tag-ok">Paid {money(a.amountCents, s)} · {st.counts.get(a.id) ?? 0} device{st.counts.get(a.id) === 1 ? '' : 's'}</span> : <span class="muted">Not arrived</span>}</td>
+              </tr>; })}
+            </tbody></table></div> : <p class="muted">Nobody has booked yet.</p>}
+            {door.bookings.length > booked.length ? <p class="small muted">Plus {door.bookings.length - booked.length} interested, not booked.</p> : null}
+          </Box> : null}
 
           <Box title={`Approved devices (${st.approved.length})`} actions={manage ? <ActionButton ctx={page} action="/admin/m/lan-event-access/sync" label="Sync with firewall" className="btn btn-small" /> : undefined}>
             {st.approved.length ? <div class="table-wrap"><table class="data-table lea-stack"><thead><tr><th>Attendee</th><th>Device</th><th>Address</th><th>Status</th><th>Approved</th>{manage ? <th /> : null}</tr></thead><tbody>
@@ -203,8 +233,10 @@ export default defineModule({
       if (st.approved.some((x) => x.device.mac === mac)) { setFlash(c, { type: 'ok', text: 'That device is already approved.' }); return c.redirect(DESK); }
       const lease = st.leases.find((l) => l.mac === mac) ?? null;
       const fee = parseMoney(s.entryFee) ?? 0;
-      const attendeeOptions: [string, string][] = [['new', 'New attendee: take the entry payment now'],
-        ...st.attendees.map((a) => [String(a.id), `${a.name} (paid ${money(a.amountCents, s)}, ${st.counts.get(a.id) ?? 0} device${st.counts.get(a.id) === 1 ? '' : 's'})`] as [string, string])];
+      const door = await doorList();
+      const paidUsers = new Set(st.attendees.map((a) => a.userId).filter((x): x is number => x !== null));
+      const bookedWaiting = (door?.bookings ?? []).filter((b) => b.status === 'booked' && !paidUsers.has(b.userId)).sort((a, b) => a.username.localeCompare(b.username));
+      const paidLabel = (a: (typeof st.attendees)[number]) => `${a.name} (paid ${money(a.amountCents, s)}, ${st.counts.get(a.id) ?? 0} device${st.counts.get(a.id) === 1 ? '' : 's'})`;
       return ctx.renderAdmin(c, 'Approve a device', P.desk, (
         <>
           <p><a href={DESK}>← Door desk</a></p>
@@ -221,16 +253,29 @@ export default defineModule({
             <form method="post" action={`${DESK}/approve`} class="form-grid lea-approve" data-lea-approve><Csrf ctx={page} />
               <input type="hidden" name="mac" value={mac} />
               <Field label="Device name on the network" name="hostname" value={lease?.hostname ?? ''} maxlength={63} hint="Letters, digits and dashes. Leave empty to use one based on the MAC address." />
-              <Select label="Who is this device for?" name="attendee" value="new" options={attendeeOptions} hint="Someone who already paid can add a second device without paying again." />
-              <fieldset class="lea-new" data-lea-new><legend>New attendee</legend>
+              <div class="field">
+                <label for="f-attendee">Who is this device for?</label>
+                <select id="f-attendee" name="attendee" data-fee={(fee / 100).toFixed(2)}>
+                  <option value="new" selected>New attendee: take the entry payment now</option>
+                  {bookedWaiting.length ? <optgroup label={`Booked for ${door!.event.name}: take payment now`}>
+                    {bookedWaiting.map((b) => <option value={`booking:${b.userId}`} data-price={(b.priceCents / 100).toFixed(2)}>{b.username}: {b.typeName}, {formatMoney(b.priceCents, door!.currency)}{b.seat ? `, seat ${b.seat}` : ''}</option>)}
+                  </optgroup> : null}
+                  {st.attendees.length ? <optgroup label="Already paid: add another device">
+                    {st.attendees.map((a) => <option value={String(a.id)}>{paidLabel(a)}</option>)}
+                  </optgroup> : null}
+                </select>
+                <div class="field-hint">Booked members pay their booking price. Someone who already paid can add another device without paying again.</div>
+              </div>
+              <fieldset class="lea-new" data-lea-new><legend>Payment</legend>
                 <div class="field-row">
-                  <Field label="Name" name="name" maxlength={80} placeholder="Name on their ticket" />
+                  <Field label="Name" name="name" maxlength={80} placeholder="Name on their ticket (booked: their username)" />
                   <Field label="Fragged username (optional)" name="username" maxlength={40} placeholder="Links the device to their account" />
                 </div>
                 <div class="field-row">
-                  <Field label={`Amount (${s.currency})`} name="amount" value={(fee / 100).toFixed(2)} inputmode="decimal" maxlength={10} />
+                  <Field label={`Amount (${s.currency})`} name="amount" value="" placeholder={`${(fee / 100).toFixed(2)} entry fee`} inputmode="decimal" maxlength={10} />
                   <Select label="Payment" name="method" value="cash" options={methodOptions} />
                 </div>
+                <p class="field-hint lea-amount-hint">Leave the amount empty to charge the entry fee, or a booked member’s booking price.</p>
                 <Field label="Note (optional)" name="note" maxlength={200} placeholder="Receipt number, who paid for them…" />
                 <Checkbox label="Payment received" name="paid" hint="Required for cash and card." />
               </fieldset>
@@ -252,20 +297,29 @@ export default defineModule({
         const who = str(b.attendee);
         let newAttendee = null;
         let attendeeId: number | null = null;
-        if (who === 'new' || !who) {
+        if (who === 'new' || !who || who.startsWith('booking:')) {
           const method = str(b.method) as Method;
           if (!(method in METHODS)) throw new ServiceError('Choose how they paid.');
-          const amount = parseMoney(str(b.amount) || '0');
-          if (amount === null) throw new ServiceError('Enter the amount like 15.00.');
-          if (TAKEN_AT_DOOR.includes(method) && !bool(b.paid)) throw new ServiceError('Tick “Payment received” once you have the money.');
           let userId: number | null = null;
+          let name = cleanLine(b.name, 80);
+          let note = cleanText(b.note, 200);
           const username = cleanLine(b.username, 40);
-          if (username) {
+          if (who.startsWith('booking:')) userId = int(who.slice(8));
+          else if (username) {
             const u = await services.users.getByUsername(username);
             if (!u) throw new ServiceError(`There’s no member called “${username}”.`);
             userId = u.id;
           }
-          newAttendee = { name: cleanLine(b.name, 80), userId, amountCents: amount, method, note: cleanText(b.note, 200) };
+          // a booked member pays their booking price unless the desk typed another amount
+          const booking = userId !== null ? (await doorList())?.bookings.find((x) => x.userId === userId && x.status === 'booked') : undefined;
+          if (who.startsWith('booking:') && !booking) throw new ServiceError('That booking no longer exists. Choose “New attendee” instead.', 409);
+          if (userId !== null && (await listAttendees()).some((a) => a.userId === userId)) throw new ServiceError('This member has already paid. Choose their name under “Already paid” to add another device.', 409);
+          if (booking) { name ||= booking.username; note ||= `Booked: ${booking.typeName}${booking.seat ? `, seat ${booking.seat}` : ''}`; }
+          const rawAmount = str(b.amount).trim();
+          const amount = rawAmount ? parseMoney(rawAmount) : booking ? booking.priceCents : parseMoney(s.entryFee);
+          if (amount === null) throw new ServiceError('Enter the amount like 15.00.');
+          if (TAKEN_AT_DOOR.includes(method) && !bool(b.paid)) throw new ServiceError('Tick “Payment received” once you have the money.');
+          newAttendee = { name, userId, amountCents: amount, method, note };
         } else attendeeId = int(who);
         const r = await approveDevice(backendOf(s), s as BackendConfig, { mac, hostname: str(b.hostname), attendeeId, newAttendee, actorId: v.user!.id });
         if (r.createdAttendee) await services.audit(v.user!.id, 'lan-event-access.payment', { type: 'lan_attendee', id: r.attendee.id }, { name: r.attendee.name, amount: money(r.attendee.amountCents, s), method: r.attendee.method }, v.ip);

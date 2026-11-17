@@ -5,7 +5,10 @@ import {
   type ModuleContext, type RequestContext, type PageCtx, type UserCard,
 } from '../../src/sdk/index.ts';
 import { parseLayout, capacity, rowLabel, type Layout } from './layout.ts';
-import { events, bookings, eventBySlug, listEvents, bookingsFor, bookingClosedReason, book, release, currentSummary, seatOf, notifyMoved, STATUSES, type SeatEvent } from './service.ts';
+import {
+  events, bookings, eventBySlug, eventById, listEvents, bookingsFor, bookingClosedReason, book, release, currentSummary, seatOf, seatFor, notifyMoved,
+  setSeatPolicy, seatAccess, STATUSES, type SeatEvent, type SeatAccess,
+} from './service.ts';
 
 const db = () => database.db();
 const tzOf = (page: PageCtx) => page.viewer.user?.timezone ?? 'UTC';
@@ -23,10 +26,11 @@ async function friendIds(userId: number): Promise<Set<number>> {
   return new Set(rows.map((r) => (r.userLowId === userId ? r.userHighId : r.userLowId)));
 }
 
-interface MapProps { page: PageCtx; e: SeatEvent; layout: Layout; taken: Map<string, UserCard>; mine: string | null; friends: Set<number>; canBook: boolean; organiser?: boolean }
+const NO_ACCESS_RULES: SeatAccess = { zones: new Map(), allowed: null, blocked: null };
+interface MapProps { page: PageCtx; e: SeatEvent; layout: Layout; taken: Map<string, UserCard>; mine: string | null; friends: Set<number>; canBook: boolean; organiser?: boolean; access?: SeatAccess }
 
 /** The seat map. Interactive seats are real buttons in forms (works without JavaScript). */
-function SeatMap({ page, e, layout, taken, mine, friends, canBook }: MapProps) {
+function SeatMap({ page, e, layout, taken, mine, friends, canBook, access = NO_ACCESS_RULES }: MapProps) {
   return (
     <div class="seatmap-scroll">
       <div class="seatmap" data-cols={layout.width} role="group" aria-label={`Seat map for ${e.name}`}>
@@ -38,6 +42,9 @@ function SeatMap({ page, e, layout, taken, mine, friends, canBook }: MapProps) {
               if (cell.kind === 'table') return <span class="seat seat-table" aria-hidden="true" />;
               const code = cell.code!;
               const who = taken.get(code);
+              const zone = access.zones.get(code);
+              const zc = zone ? ' seat-zone' : '';
+              const zl = zone ? ` (${zone})` : '';
               if (who) {
                 const isMe = code === mine;
                 const isFriend = friends.has(who.id);
@@ -48,11 +55,12 @@ function SeatMap({ page, e, layout, taken, mine, friends, canBook }: MapProps) {
               }
               if (cell.kind === 'blocked') return <span class="seat seat-blocked" title={`${code}: unavailable`} aria-label={`Seat ${code}, unavailable`}><span class="seat-code">{code}</span></span>;
               if (cell.kind === 'reserved') return <span class="seat seat-reserved" title={`${code}: reserved`} aria-label={`Seat ${code}, reserved for organisers to assign`}><span class="seat-code">{code}</span></span>;
-              if (!canBook) return <span class="seat seat-free" aria-label={`Seat ${code}, free`}><span class="seat-code">{code}</span></span>;
+              const mayBook = canBook && !access.blocked && (!access.allowed || access.allowed.has(code));
+              if (!mayBook) return <span class={`seat seat-free${zc}`} title={`${code}: free${zl}`} aria-label={`Seat ${code}, free${zl}`}><span class="seat-code">{code}</span></span>;
               return (
                 <form method="post" action={`/m/lan-seating/${e.slug}/book`} class="seat-form">
                   <Csrf ctx={page} /><input type="hidden" name="seat" value={code} />
-                  <button class="seat seat-free seat-bookable" aria-label={`Seat ${code}, free — ${mine ? 'move here' : 'book this seat'}`} title={`Book ${code}`}><span class="seat-code">{code}</span></button>
+                  <button class={`seat seat-free seat-bookable${zc}`} aria-label={`Seat ${code}${zl}, free — ${mine ? 'move here' : 'book this seat'}`} title={`Book ${code}${zl}`}><span class="seat-code">{code}</span></button>
                 </form>
               );
             })}
@@ -63,7 +71,8 @@ function SeatMap({ page, e, layout, taken, mine, friends, canBook }: MapProps) {
   );
 }
 
-function Legend() {
+function Legend({ zones }: { zones?: Map<string, string> }) {
+  const names = [...new Set(zones?.values() ?? [])];
   return (
     <ul class="seat-legend" aria-label="Legend">
       <li><span class="seat seat-free" aria-hidden="true" /> Free</li>
@@ -72,12 +81,13 @@ function Legend() {
       <li><span class="seat seat-taken seat-mine" aria-hidden="true" /> You</li>
       <li><span class="seat seat-reserved" aria-hidden="true" /> Reserved</li>
       <li><span class="seat seat-blocked" aria-hidden="true" /> Unavailable</li>
+      {names.length ? <li><span class="seat seat-free seat-zone" aria-hidden="true" /> {names.map((n) => (/seats$/i.test(n) ? n : /seat$/i.test(n) ? `${n}s` : `${n} seats`)).join(', ')}</li> : null}
     </ul>
   );
 }
 
-async function mapData(c: RequestContext, e: SeatEvent) {
-  const page = c.get('page');
+async function mapData(c: RequestContext | { get(k: 'page'): PageCtx }, e: SeatEvent) {
+  const page = (c as { get(k: 'page'): PageCtx }).get('page');
   const v = page.viewer;
   const layout = parseLayout(e.layout);
   const list = await bookingsFor(e.id);
@@ -85,14 +95,15 @@ async function mapData(c: RequestContext, e: SeatEvent) {
   const taken = new Map(list.map((b) => [b.seat, cards.get(b.userId)!]).filter(([, u]) => !!u) as [string, UserCard][]);
   const mine = v.user ? list.find((b) => b.userId === v.user!.id)?.seat ?? null : null;
   const friends = v.user ? await friendIds(v.user.id) : new Set<number>();
-  return { page, layout, list, taken, mine, friends, cards };
+  const access = await seatAccess(e.id, v.user?.id ?? null);
+  return { page, layout, list, taken, mine, friends, cards, access };
 }
 
 export default defineModule({
   id: 'lan-seating',
   name: 'LAN party seat booking',
-  version: '1.0.0',
-  description: 'Draw a seat map for each LAN party and let attendees book their seat. Organisers can reserve, assign and move seats.',
+  version: '1.1.0',
+  description: 'Draw a seat map for each LAN party and let attendees book their seat. Organisers can reserve, assign and move seats. Other modules can limit which seats a member may book (lan-bookings uses this for booking types).',
   author: 'Fragged Forums contributors',
   license: 'AGPL-3.0-or-later',
   sdk: '^1.0.0',
@@ -109,7 +120,22 @@ export default defineModule({
 
   setup(ctx: ModuleContext) {
     const P = { view: ctx.perm('view'), book: ctx.perm('book'), manage: ctx.perm('manage') };
-    ctx.expose({ currentSummary, seatOf });
+    ctx.expose({
+      currentSummary, seatOf, seatFor, eventById, eventBySlug, listEvents, bookingsFor,
+      /** seat codes in the event's map with their kind */
+      seatCodes: async (eventId: number) => { const e = await eventById(eventId); return e ? parseLayout(e.layout).seats : new Map(); },
+      /** organiser-side release (no booking-window checks) */
+      releaseSeat: async (eventId: number, userId: number) => { const e = await eventById(eventId); if (e) await release(e, userId, { asOrganiser: true }); },
+      /** register or clear (null) a seat policy, keyed by the calling module's id */
+      setSeatPolicy,
+      /** read-only seat map (with legend) for embedding in another module's page, e.g. a forum thread panel */
+      mapView: async (eventId: number, page: PageCtx) => {
+        const e = await eventById(eventId);
+        if (!e) return null;
+        const d = await mapData({ get: () => page }, e);
+        return <div class="seatmap-embed"><Legend zones={d.access.zones} /><SeatMap page={page} e={e} layout={d.layout} taken={d.taken} mine={d.mine} friends={d.friends} canBook={false} access={d.access} /></div>;
+      },
+    });
     ctx.register.navItem({ href: '/m/lan-seating', label: 'Seating', icon: 'seat', area: 'main', order: 65, visible: (v) => v.can(P.view) });
     ctx.register.adminSection({ slug: 'events', label: 'LAN seating', permission: P.manage });
     ctx.hooks.on('user.closed', async ({ userId }) => { await db().delete(bookings).where(eq(bookings.userId, userId)); });
@@ -168,11 +194,13 @@ export default defineModule({
             <span><strong>{d.list.length}</strong> of {cap} seats booked</span>
             {d.mine ? <span>Your seat: <strong>{d.mine}</strong></span> : null}
             {d.mine && !closed ? <ActionButton ctx={d.page} action={`/m/lan-seating/${e.slug}/release`} label="Give up my seat" className="btn btn-small" confirm="Give up your seat?" /> : null}
-            {closed ? <span class="muted">{closed}</span> : !v.user ? <a href={`/login?returnTo=/m/lan-seating/${e.slug}`}>Sign in to book a seat</a> : !canBook ? <span class="muted">You can't book seats.</span> : <span class="muted">Choose a free seat to {d.mine ? 'move' : 'book it'}.</span>}
+            {closed ? <span class="muted">{closed}</span> : !v.user ? <a href={`/login?returnTo=/m/lan-seating/${e.slug}`}>Sign in to book a seat</a> : !canBook ? <span class="muted">You can't book seats.</span>
+              : d.access.blocked ? <span>{d.access.blocked.text}{d.access.blocked.href ? <> <a href={d.access.blocked.href}>Book a place</a></> : null}</span>
+              : <span class="muted">Choose a free seat to {d.mine ? 'move' : 'book it'}{d.access.allowed ? ' (highlighted seats are the ones your booking includes)' : ''}.</span>}
           </div>
-          <Legend />
+          <Legend zones={d.access.zones} />
           <div data-seatmap data-seatmap-live={!closed ? `/m/lan-seating/${e.slug}/map` : undefined}>
-            <SeatMap page={d.page} e={e} layout={d.layout} taken={d.taken} mine={d.mine} friends={d.friends} canBook={canBook} />
+            <SeatMap page={d.page} e={e} layout={d.layout} taken={d.taken} mine={d.mine} friends={d.friends} canBook={canBook} access={d.access} />
           </div>
           <details class="seat-list"><summary>Seat list (table view)</summary>
             <table class="data-table"><thead><tr><th>Seat</th><th>Status</th></tr></thead><tbody>
@@ -190,7 +218,7 @@ export default defineModule({
       const d = await mapData(c, e);
       const canBook = !bookingClosedReason(e) && (await d.page.viewer.can(P.book));
       c.header('Cache-Control', 'no-store');
-      return c.html(String(await (<SeatMap page={d.page} e={e} layout={d.layout} taken={d.taken} mine={d.mine} friends={d.friends} canBook={canBook} />)));
+      return c.html(String(await (<SeatMap page={d.page} e={e} layout={d.layout} taken={d.taken} mine={d.mine} friends={d.friends} canBook={canBook} access={d.access} />)));
     });
 
     ctx.routes.post('/:slug/book', async (c) => {

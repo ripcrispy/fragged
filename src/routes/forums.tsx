@@ -15,6 +15,7 @@ import { numberFmt } from '../lib/time.ts';
 import { getSetting } from '../services/settings.ts';
 import { REPORT_REASONS } from '../services/moderation.ts';
 import { rowsOf } from '../services/notifications.ts';
+import { threadPanels } from '../web/extensions.tsx';
 
 export const forumRoutes = new Hono<Env>();
 
@@ -388,6 +389,7 @@ forumRoutes.get('/t/:ref', async (c) => {
   const signatures = v.user ? v.settings.showSignatures : true;
   const draft = await F.getDraft(v, `reply:${thread.id}`);
   const pageHref = (p: number) => threadUrl(thread, p);
+  const panels = await threadPanels({ viewer: v, thread: { id: thread.id, forumId: forum.id, userId: thread.userId, title: thread.title, url: threadUrl(thread) }, ctx });
 
   const postsHtml = (
     <ol class="postlist" data-thread-id={thread.id}>
@@ -485,6 +487,7 @@ forumRoutes.get('/t/:ref', async (c) => {
         <Pagination page={res.page} pages={res.pages} href={pageHref} label="Post pages" />
       </div>
       {canModThreads ? <ModTools ctx={ctx} thread={thread} forum={forum} /> : null}
+      {panels.length ? <div class="thread-panels">{panels}</div> : null}
       {gate ? (
         <details class="cw-gate" data-cw-gate={thread.id}>
           <summary><span class="cw-icon" aria-hidden="true">⚠</span> This thread is labelled <strong>{gate}</strong>. {gate === 'Spoiler' ? 'It may reveal plot details.' : 'It may contain content some members prefer not to see.'} <span class="btn btn-small">Show content</span></summary>

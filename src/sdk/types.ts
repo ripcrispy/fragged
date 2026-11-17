@@ -200,6 +200,15 @@ export interface AdminUserPanel {
   render(args: { viewer: Viewer; user: User; ctx: PageCtx }): Child | Promise<Child>;
 }
 
+/** The thread a thread panel is rendered for (already checked as visible to the viewer). */
+export interface ThreadPanelThread { id: number; forumId: number; userId: number; title: string; url: string }
+/** A box shown above a thread's posts (SDK 1.1). Return null to show nothing, which is the usual case for most threads. */
+export interface ThreadPanel {
+  id: string;
+  order: number;
+  render(args: { viewer: Viewer; thread: ThreadPanelThread; ctx: PageCtx }): Child | null | Promise<Child | null>;
+}
+
 // ───────────────────────────── module context ─────────────────────────────
 
 export interface ModuleLogger { debug(m: string, f?: Record<string, unknown>): void; info(m: string, f?: Record<string, unknown>): void; warn(m: string, f?: Record<string, unknown>): void; error(m: string, f?: Record<string, unknown>): void }
@@ -233,6 +242,8 @@ export interface ModuleContext {
     adminSection(s: AdminSection): void;
     modQueue(q: ModQueueSource): void;
     adminUserPanel(p: AdminUserPanel): void;
+    /** SDK 1.1: a box above the posts of a thread. */
+    threadPanel(p: ThreadPanel): void;
   };
   /** Render a full page inside the site shell. */
   render(c: C, title: string, body: Child, opts?: { crumbs?: { label: string; href?: string }[]; noPane?: boolean; status?: number }): Promise<Response>;

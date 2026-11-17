@@ -59,6 +59,16 @@ export async function moduleQueues(viewer: Viewer): Promise<{ id: string; label:
   return out;
 }
 
+/** Module boxes above a thread's posts. */
+export async function threadPanels(args: import('../sdk/types.ts').ThreadPanel extends { render(a: infer A): unknown } ? A : never): Promise<Child[]> {
+  const out: Child[] = [];
+  for (const p of registries.threadPanels.active().sort((a, b) => a.order - b.order)) {
+    const node = await guarded(`thread panel ${p.id}`, () => p.render(args));
+    if (node) out.push(node);
+  }
+  return out;
+}
+
 /** Extra panels on Admin › Users › <member>. */
 export async function adminUserPanels(args: { viewer: Viewer; user: import('../sdk/types.ts').User; ctx: import('./ctx.ts').PageCtx }): Promise<Child[]> {
   const out: Child[] = [];

@@ -29,6 +29,35 @@ export const STATUSES = { draft: 'Draft (only organisers can see it)', open: 'Op
 
 const db = () => database.db();
 
+/**
+ * Seat policies let another module (e.g. lan-bookings) decide who may self-book which seats, without seating
+ * depending on it. Registered through the exposed API; organisers assigning seats are never restricted.
+ */
+export interface SeatAccess {
+  /** seat code → label shown on the map, e.g. "10GbE" */
+  zones: Map<string, string>;
+  /** seats this member may book; null means any free seat */
+  allowed: Set<string> | null;
+  /** when set, the member can't book at all yet (e.g. they need to book a place first) */
+  blocked: { text: string; href?: string } | null;
+}
+export interface SeatPolicy { access(eventId: number, userId: number | null): Promise<SeatAccess | null> }
+const policies = new Map<string, SeatPolicy>();
+export function setSeatPolicy(owner: string, policy: SeatPolicy | null) { if (policy) policies.set(owner, policy); else policies.delete(owner); }
+
+/** All registered policies merged: zones combined, allowed seats intersected, the first block wins. */
+export async function seatAccess(eventId: number, userId: number | null): Promise<SeatAccess> {
+  const out: SeatAccess = { zones: new Map(), allowed: null, blocked: null };
+  for (const p of policies.values()) {
+    const a = await p.access(eventId, userId);
+    if (!a) continue;
+    for (const [k, v] of a.zones) out.zones.set(k, v);
+    if (a.allowed) out.allowed = out.allowed ? new Set([...out.allowed].filter((s) => a.allowed!.has(s))) : new Set(a.allowed);
+    out.blocked ??= a.blocked;
+  }
+  return out;
+}
+
 export async function eventBySlug(slug: string) { return (await db().select().from(events).where(eq(events.slug, slug)))[0] ?? null; }
 export async function listEvents(includeDrafts: boolean) {
   const all = await db().select().from(events).orderBy(desc(events.startsAt), desc(events.id));
@@ -54,6 +83,12 @@ export async function book(e: SeatEvent, userId: number, seat: string, opts: { a
     const closed = bookingClosedReason(e);
     if (closed) throw new ServiceError(closed, 403, 'booking_closed');
     if (kind !== 'seat') throw new ServiceError(kind === 'reserved' ? 'That seat is reserved — ask an organiser.' : 'That seat isn’t available.', 403);
+    const access = await seatAccess(e.id, userId);
+    if (access.blocked) throw new ServiceError(access.blocked.text, 403, 'seat_policy');
+    if (access.allowed && !access.allowed.has(seat)) {
+      const zone = access.zones.get(seat);
+      throw new ServiceError(zone ? `Seat ${seat} is for ${zone} bookings.` : `Your booking doesn’t include seat ${seat}.`, 403, 'seat_policy');
+    }
   } else if (kind === 'blocked') throw new ServiceError('That seat is blocked in the layout.', 409);
   try {
     await db().transaction(async (tx) => {
@@ -78,6 +113,11 @@ export async function currentSummary() {
   if (!e) return null;
   const [{ n }] = await db().select({ n: sql<number>`count(*)::int` }).from(bookings).where(eq(bookings.eventId, e.id));
   return { name: e.name, slug: e.slug, startsAt: e.startsAt, booked: n, capacity: capacity(parseLayout(e.layout)), url: `/m/lan-seating/${e.slug}` };
+}
+
+export async function eventById(id: number) { return (await db().select().from(events).where(eq(events.id, id)))[0] ?? null; }
+export async function seatFor(eventId: number, userId: number) {
+  return (await db().select().from(bookings).where(and(eq(bookings.eventId, eventId), eq(bookings.userId, userId))))[0]?.seat ?? null;
 }
 
 export async function seatOf(userId: number) {

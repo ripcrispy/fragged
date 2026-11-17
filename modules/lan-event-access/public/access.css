@@ -20,3 +20,4 @@
   .data-table.lea-stack td[data-label]::before { content: attr(data-label) ": "; color: var(--text-muted); }
   .data-table.lea-stack td.lea-actions { text-align: left; padding-top: 6px; }
 }
+.lea-amount-hint { margin: 2px 0 8px; }

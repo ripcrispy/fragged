@@ -1,9 +1,9 @@
 /**
- * Demo content for the LAN-party modules (seating, intranet, caffeine tracker, pizza, event access). Enables them.
+ * Demo content for the LAN-party modules (seating, bookings, intranet, caffeine tracker, pizza, event access). Enables them.
  * Safe to re-run: each part is skipped when its demo data already exists.
  *   npx tsx scripts/demo-lan.ts     (development only; run after `npm run seed`)
  */
-import { sql } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
 import { config } from '../src/config.ts';
 import { createDb, setDb, closeDb, getDb, schema } from '../src/db/client.ts';
 import { ensureBootstrap } from '../src/db/bootstrap.ts';
@@ -14,8 +14,8 @@ setDb(await createDb());
 await ensureBootstrap();
 const { loadModules, syncModules, setModuleEnabled, saveModuleSettings } = await import('../src/modules/runtime.ts');
 await loadModules(); await syncModules();
-for (const id of ['lan-seating', 'caffeine-tracker', 'lan-pizza', 'lan-intranet', 'lan-event-access']) await setModuleEnabled(id, true); // event access starts in demo mode
-const { events, book } = await import('../modules/lan-seating/service.ts');
+for (const id of ['lan-seating', 'caffeine-tracker', 'lan-pizza', 'lan-intranet', 'lan-event-access', 'lan-bookings']) await setModuleEnabled(id, true); // event access starts in demo mode
+const { events, bookings, book } = await import('../modules/lan-seating/service.ts');
 const { listDrinks, logDrink } = await import('../modules/caffeine-tracker/service.ts');
 const pizza = await import('../modules/lan-pizza/service.ts');
 const db = getDb();
@@ -44,8 +44,47 @@ if (!rowsOf(await db.execute(sql`select 1 from mod_lan_pizza_rounds where name =
   console.log(`Pizza demo: ${picks.length} orders.`);
 }
 
+/** Bookings for Frag Night 01, its crew and a sticky announcement thread (skipped when already set up). */
+async function demoBookings() {
+  const B = await import('../modules/lan-bookings/service.ts');
+  const F = await import('../src/services/forums.ts');
+  const { buildViewer } = await import('../src/services/viewer.ts');
+  const [ev] = await db.select().from(events).where(eq(events.slug, 'frag-night-01'));
+  if (!ev || (await B.configFor(ev.id))) return;
+  await B.setUp(ev.id);
+  const [standard, fast] = await B.typesFor(ev.id);
+  await db.update(B.types).set({ seats: 'B' }).where(eq(B.types.id, fast.id)); // row B is on the 10 Gb/s switch
+  await db.insert(B.types).values({ eventId: ev.id, name: 'Spectator', description: 'No seat, just here for the tournaments and the pizza.', priceCents: 500, capacity: 15, displayOrder: 30 });
+  await db.update(B.configs).set({ status: 'open', intro: 'Two nights of LAN gaming, a 5v5 tournament and far too much pizza.' }).where(eq(B.configs.eventId, ev.id));
+  const seatOf = new Map((await db.select().from(bookings).where(eq(bookings.eventId, ev.id))).map((b) => [b.userId, b.seat]));
+  // sign-ups spread over the last two weeks so the interest chart has a shape
+  const ago = (i: number) => new Date(now - ((i * 5) % 14) * 24 * H - i * H);
+  const seated = users.filter((u) => seatOf.has(u.id));
+  // the last two seat holders haven't committed yet: they're interested, without a seat
+  const undecided = seated.slice(-2);
+  for (const u of undecided) await db.delete(bookings).where(eq(bookings.userId, u.id));
+  for (const [i, u] of seated.entries()) {
+    const seat = seatOf.get(u.id)!;
+    const interested = undecided.includes(u);
+    await db.insert(B.bookings).values({ eventId: ev.id, userId: u.id, typeId: seat.startsWith('B') || interested ? fast.id : standard.id, status: interested ? 'interested' : 'booked', termsAcceptedAt: interested ? null : new Date(), createdAt: ago(i), updatedAt: ago(i) }).onConflictDoNothing();
+  }
+  const byName = new Map(users.map((u) => [u.username, u.id]));
+  const crew: [string, string, string][] = [['Overseer', 'Admin', ''], ['Vexa', 'Moderator', ''], ['quietkeys', 'LAN admin', 'network and servers'], ['NullSector', 'Volunteer', 'front desk, Friday']];
+  for (const [name, role, note] of crew) if (byName.has(name)) await B.addCrew(ev.id, byName.get(name)!, role, note);
+  const [admin] = await db.select().from(schema.users).where(eq(schema.users.username, 'Overseer'));
+  const forum = await F.forumBySlug('general-chat');
+  if (admin && forum) {
+    const v = await buildViewer(admin, null, '127.0.0.1', 'demo');
+    resetLimits();
+    const { thread } = await F.createThread(v, forum, { title: 'Bookings open: Frag Night 01', body: `[b]Frag Night 01[/b] is taking bookings!\n\nTwo nights of LAN gaming at the community hall. Grab a standard seat, a high-speed network seat on the 10 Gb/s row, or come along as a spectator.\n\n[url=/m/lan-bookings/frag-night-01]Book your place[/url]. Not sure yet? Register your interest on the same page.` });
+    await F.setThreadFlags(v, thread.id, { isSticky: true });
+    await db.update(B.configs).set({ threadId: thread.id }).where(eq(B.configs.eventId, ev.id));
+  }
+  console.log('Bookings demo: 3 booking types, crew and a sticky announcement thread.');
+}
+
 const exists = await db.execute(sql`select 1 from mod_lan_seating_events where slug = 'frag-night-01'`);
-if (rowsOf(exists).length) { console.log('LAN demo content already present.'); await closeDb(); process.exit(0); }
+if (rowsOf(exists).length) { await demoBookings(); console.log('LAN demo content already present.'); await closeDb(); process.exit(0); }
 const start = new Date(Math.ceil((now + 2 * 24 * H) / H) * H);
 const iso = (d: Date) => d.toISOString().slice(0, 16);
 
@@ -86,5 +125,7 @@ const plan: [number, string, number, number][] = [
 ];
 resetLimits();
 for (const [ui, drink, servings, ago] of plan) if (users[ui]) await logDrink(users[ui].id, { drinkId: pick(drink), servings, minutesAgo: ago });
-console.log(`LAN demo ready: ${codes.length} seats booked, ${plan.length} drinks logged for ${users.length} members.`);
+await demoBookings();
+const seatsTaken = (await db.select().from(bookings).where(eq(bookings.eventId, e.id))).length;
+console.log(`LAN demo ready: ${seatsTaken} seats booked, ${plan.length} drinks logged for ${users.length} members.`);
 await closeDb();
