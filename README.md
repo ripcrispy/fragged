@@ -104,7 +104,7 @@ core.
 </details>
 
 <details>
-<summary><strong>LAN party toolkit</strong> (5 screenshots)</summary>
+<summary><strong>LAN party toolkit</strong> (7 screenshots)</summary>
 <br>
 
 **LAN HQ intranet**: a countdown in the page banner, announcements, live game-server status, schedule, seat bookings, the pizza run, the caffeine leaderboard, Wi-Fi details and house rules.
@@ -126,6 +126,14 @@ core.
 **Organiser view**: cash collected, the shopping list to phone through, and one-click payment and hand-out tracking.
 
 <img src="docs/assets/lan-pizza-organiser.jpg" alt="The organiser screen for a pizza run with cash totals, a shopping list split by paid and unpaid, and an orders table with payment buttons" width="860">
+
+**Event access door desk**: new devices wait on the staging network until the desk confirms payment, then one click moves them onto the LAN through your OPNsense or pfSense firewall.
+
+<img src="docs/assets/lan-event-access-desk.jpg" alt="The Event access door desk with devices waiting on staging addresses, approved devices showing their LAN address and an On the LAN status, and attendee payments by cash, card, paid in advance and free entry" width="860">
+
+**Approving a device**: record the entry payment, optionally link the attendee's Fragged account, and approve.
+
+<img src="docs/assets/lan-event-access-approve.jpg" alt="The approve-a-device form showing the device's name, MAC and staging address, and payment fields for a new attendee: name, Fragged username, amount, payment method and a Payment received tick" width="860">
 
 </details>
 
