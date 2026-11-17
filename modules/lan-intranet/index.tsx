@@ -130,21 +130,13 @@ export default defineModule({
 
       const blocks: Record<string, () => Promise<Child | null>> = {
         announcements: async () => anns.length ? (
-          <Box title="Announcements" className="intranet-wide">{anns.map((a) => (
+          <Box title="Announcements">{anns.map((a) => (
             <article class={`ann ann-${a.level}`}><h3>{a.pinned ? <span class="tag">Pinned</span> : null} {LEVELS[a.level as keyof typeof LEVELS] ?? ''}: {a.title}</h3>
               {a.body ? <div class="bb"><Html html={renderBBCode(a.body, { embeds: false })} /></div> : null}
               <p class="muted small"><Time d={a.createdAt} tz={tz} mode="ago" /></p></article>))}
           </Box>) : null,
-        countdown: async () => start ? (
-          <Box title={start > now ? 'Doors open in' : 'We’re live!'}>
-            <div class="countdown" data-countdown={start.toISOString()} role="timer" aria-label={`Doors open ${start.toISOString()}`}>
-              <Stat label="days" value={<span data-cd="d">–</span>} /><Stat label="hours" value={<span data-cd="h">–</span>} /><Stat label="min" value={<span data-cd="m">–</span>} /><Stat label="sec" value={<span data-cd="s">–</span>} />
-              <p data-cd-live hidden={start > now ? true : undefined}><strong>Doors are open. Have fun!</strong></p>
-            </div>
-            <p class="muted small"><Time d={start} tz={s.timezone} /> ({s.timezone})</p>
-          </Box>) : null,
         servers: async () => (
-          <Box title="Game servers" className="intranet-wide">
+          <Box title="Game servers">
             {srv.length ? <div class="table-wrap"><table class="data-table" data-servers><thead><tr><th>Server</th><th>Game</th><th>Status</th><th>Players</th><th>Map</th><th>Connect</th></tr></thead><tbody>
               {srv.map((x) => { const st = status.get(x.id); return (
                 <tr data-server={x.id}><td><strong>{x.name}</strong>{x.notes ? <div class="muted small">{x.notes}</div> : null}</td><td>{x.game}</td>
@@ -182,15 +174,39 @@ export default defineModule({
             <p><a href="/m/caffeine-tracker">Full leaderboard</a></p></Box>;
         },
         wifi: async () => s.wifi ? <Box title="Wi-Fi"><div class="bb"><Html html={renderBBCode(s.wifi, { embeds: false })} /></div></Box> : null,
-        info: async () => s.info ? <Box title="Info & house rules" className="intranet-wide"><div class="bb"><Html html={renderBBCode(s.info, { embeds: false })} /></div></Box> : null,
+        info: async () => s.info ? <Box title="Info & house rules"><div class="bb"><Html html={renderBBCode(s.info, { embeds: false })} /></div></Box> : null,
       };
-      const order = s.sections.split(',').map((x) => x.trim()).filter((x) => x in blocks);
-      const rendered = [];
-      for (const k of order) { try { const n = await blocks[k](); if (n) rendered.push(n); } catch (e) { ctx.log.error('intranet section failed', { section: k, error: String(e) }); } }
+      // The countdown lives in the hero banner rather than the grid: as a small card it ended up
+      // orphaned on its own row between the full-width announcements and servers boxes.
+      const sections = s.sections.split(',').map((x) => x.trim());
+      const countdown = start && sections.includes('countdown') ? (
+        <div class="intranet-countdown">
+          <p class="intranet-countdown-label">{start > now ? 'Doors open in' : 'We’re live!'}</p>
+          <div class="countdown" data-countdown={start.toISOString()} role="timer" aria-label={`Doors open ${start.toISOString()}`}>
+            <Stat label="days" value={<span data-cd="d">–</span>} /><Stat label="hours" value={<span data-cd="h">–</span>} /><Stat label="min" value={<span data-cd="m">–</span>} /><Stat label="sec" value={<span data-cd="s">–</span>} />
+            <p data-cd-live hidden={start > now ? true : undefined}><strong>Doors are open. Have fun!</strong></p>
+          </div>
+          <p class="small intranet-countdown-when"><Time d={start} tz={s.timezone} /> ({s.timezone})</p>
+        </div>) : null;
+      const order = sections.filter((x) => x in blocks);
+      // Full-width sections span the page; runs of consecutive small cards are grouped into a
+      // wrapping row so a short last line stretches to fill the width instead of leaving a hole.
+      const WIDE = new Set(['announcements', 'servers', 'info']);
+      const rendered: Child[] = [];
+      let run: Child[] = [];
+      const flush = () => { if (run.length) rendered.push(<div class="intranet-row">{run}</div>); run = []; };
+      for (const k of order) {
+        try {
+          const n = await blocks[k]();
+          if (!n) continue;
+          if (WIDE.has(k)) { flush(); rendered.push(n); } else run.push(n);
+        } catch (e) { ctx.log.error('intranet section failed', { section: k, error: String(e) }); }
+      }
+      flush();
       return ctx.render(c, s.title, (
         <div data-intranet data-refresh={s.refreshSeconds}>
-          <header class="intranet-hero"><h1>{s.title}</h1>{s.tagline ? <p>{s.tagline}</p> : null}</header>
-          {rendered.length ? <div class="intranet-grid">{rendered}</div> : <EmptyState title="Nothing to show yet.">{await page.viewer.can(manage) ? <p><a href="/admin/m/lan-intranet/manage">Add announcements, servers and a schedule</a>.</p> : null}</EmptyState>}
+          <header class="intranet-hero"><div class="intranet-hero-text"><h1>{s.title}</h1>{s.tagline ? <p>{s.tagline}</p> : null}</div>{countdown}</header>
+          {rendered.length || countdown ? <div class="intranet-grid">{rendered}</div> : <EmptyState title="Nothing to show yet.">{await page.viewer.can(manage) ? <p><a href="/admin/m/lan-intranet/manage">Add announcements, servers and a schedule</a>.</p> : null}</EmptyState>}
           <script src="/modules/lan-intranet/intranet.js" defer></script>
         </div>
       ), { crumbs: [{ label: s.title }] });

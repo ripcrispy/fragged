@@ -1,10 +1,19 @@
 /* LAN intranet module — theme tokens only. */
 .intranet-hero { padding: 18px 16px; margin-bottom: 12px; border-radius: var(--radius); background: var(--head-bg); color: var(--head-text); border: 1px solid var(--head-border); }
+.intranet-hero { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
 .intranet-hero h1 { margin: 0; font-size: 2rem; color: var(--head-text); }
 .intranet-hero p { margin: 4px 0 0; opacity: .9; }
-.intranet-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; align-items: start; }
-.intranet-grid > .box { margin: 0; }
-.intranet-wide { grid-column: 1 / -1; }
+.intranet-countdown { flex: 0 1 340px; min-width: 0; }
+.intranet-countdown .intranet-countdown-label { margin: 0 0 6px; font-weight: bold; text-transform: uppercase; font-size: 11px; letter-spacing: .05em; }
+.intranet-countdown .intranet-countdown-when { margin: 6px 0 0; }
+.intranet-countdown .countdown { max-width: none; }
+.intranet-countdown .stat { color: var(--text); }
+.intranet-grid { display: grid; gap: 12px; }
+.intranet-grid .box { margin: 0; }
+/* consecutive small cards share a wrapping row; leftover cards on the last line grow to fill it */
+.intranet-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.intranet-row > .box { flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; }
+.intranet-row > .box > .box-body { flex: 1; }
 .countdown { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; max-width: 420px; }
 .countdown .stat { min-width: 0; }
 .countdown .stat-value { font-size: 1.8rem; }
