@@ -4,7 +4,7 @@ import {
   services, ServiceError, type ModuleContext,
 } from '../../src/sdk/index.ts';
 import { achievementDefinitions as defs, userAchievements as awards } from './schema.ts';
-import { evaluate, award, revoke, earnedBy, METRICS, DEFAULTS } from './service.ts';
+import { evaluate, award, revoke, earnedBy, allMetrics, moduleMetrics, DEFAULTS } from './service.ts';
 
 const db = () => database.db();
 const profiles = database.coreTables.userProfiles;
@@ -14,7 +14,7 @@ const CATEGORIES = ['threads', 'posts', 'reactions', 'community', 'account', 'co
 
 function definitionValues(b: Record<string, unknown>) {
   const metric = str(b.metric);
-  if (metric && !(metric in METRICS)) throw new ServiceError('Unknown metric.');
+  if (metric && !(metric in allMetrics())) throw new ServiceError('Unknown metric.');
   const threshold = int(b.threshold);
   if (metric && threshold < 1) throw new ServiceError('Threshold must be at least 1.');
   const pick = (v: string, allowed: string[], d: string) => (allowed.includes(v) ? v : d);
@@ -28,7 +28,7 @@ function definitionValues(b: Record<string, unknown>) {
 export default defineModule({
   id: 'achievements',
   name: 'Achievements',
-  version: '1.1.0',
+  version: '1.2.0',
   description: 'Badges awarded automatically for taking part (posts, threads, reactions, friendships), plus manual awards by staff.',
   author: 'Fragged Forums contributors',
   license: 'AGPL-3.0-or-later',
@@ -44,6 +44,22 @@ export default defineModule({
   },
 
   setup(ctx: ModuleContext) {
+    /**
+     * For other modules (e.g. lan-tournaments): add a metric organisers can build achievements on, add default
+     * definitions (skipped when the key exists, so admins' edits are kept), and re-check a member after their
+     * metric changed.
+     */
+    ctx.expose({
+      registerMetric(key: string, label: string, value: (userId: number) => Promise<number>) {
+        if (!/^[a-z][a-z0-9_]{1,40}$/.test(key)) throw new Error(`bad metric key ${key}`);
+        moduleMetrics.set(key, { label, value });
+      },
+      unregisterMetric(key: string) { moduleMetrics.delete(key); },
+      async addDefinitions(list: { key: string; name: string; description: string; category: string; icon: string; rarity: string; metric: string; threshold: number }[]) {
+        for (const d of list) await db().insert(defs).values({ key: d.key, name: d.name, description: d.description, category: d.category, icon: d.icon, rarity: d.rarity, criteria: { metric: d.metric, threshold: d.threshold }, displayOrder: 500 }).onConflictDoNothing();
+      },
+      evaluate: (userId: number) => evaluate(userId),
+    });
     ctx.register.personalData({
       id: 'achievements', label: 'Achievements',
       export: async (userId) => (await db().select({ name: defs.name, awarded: awards.awardedAt, revoked: awards.revokedAt }).from(awards).innerJoin(defs, eq(defs.id, awards.achievementId)).where(eq(awards.userId, userId))),
@@ -121,7 +137,7 @@ export default defineModule({
           <select name="category" aria-label="Category">{CATEGORIES.map((x) => <option selected={d?.category === x}>{x}</option>)}</select>
           <select name="rarity" aria-label="Rarity">{RARITIES.map((x) => <option selected={d?.rarity === x}>{x}</option>)}</select>
           <select name="icon" aria-label="Icon">{ICONS.map((x) => <option selected={d?.icon === x}>{x}</option>)}</select>
-          <select name="metric" aria-label="Metric"><option value="">manual award</option>{Object.entries(METRICS).map(([k, l]) => <option value={k} selected={d?.criteria.metric === k}>{l}</option>)}</select>
+          <select name="metric" aria-label="Metric"><option value="">manual award</option>{Object.entries(allMetrics()).map(([k, l]) => <option value={k} selected={d?.criteria.metric === k}>{l}</option>)}</select>
           <input name="threshold" type="number" min={1} value={String(d?.criteria.threshold ?? '')} placeholder="≥" aria-label="Threshold" class="input-narrow" />
           <input name="displayOrder" type="number" value={String(d?.displayOrder ?? 0)} aria-label="Order" class="input-narrow" />
           <label><input type="checkbox" name="isActive" value="1" checked={d ? d.isActive : true} /> active</label>

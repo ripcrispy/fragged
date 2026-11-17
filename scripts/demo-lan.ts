@@ -14,7 +14,7 @@ setDb(await createDb());
 await ensureBootstrap();
 const { loadModules, syncModules, setModuleEnabled, saveModuleSettings } = await import('../src/modules/runtime.ts');
 await loadModules(); await syncModules();
-for (const id of ['lan-seating', 'caffeine-tracker', 'lan-pizza', 'lan-intranet', 'lan-event-access', 'lan-bookings']) await setModuleEnabled(id, true); // event access starts in demo mode
+for (const id of ['lan-seating', 'caffeine-tracker', 'lan-pizza', 'lan-intranet', 'lan-event-access', 'lan-bookings', 'lan-tournaments']) await setModuleEnabled(id, true); // event access starts in demo mode
 const { events, bookings, book } = await import('../modules/lan-seating/service.ts');
 const { listDrinks, logDrink } = await import('../modules/caffeine-tracker/service.ts');
 const pizza = await import('../modules/lan-pizza/service.ts');
@@ -83,6 +83,70 @@ async function demoBookings() {
   console.log('Bookings demo: 3 booking types, crew and a sticky announcement thread.');
 }
 
+/**
+ * Three tournaments at Frag Night 01: a 1v1 bracket in progress (with a live match, a reported score and a
+ * scheduled final), a kart free-for-all taking registrations, and a finished 2v2 league with published results.
+ */
+async function demoTournaments() {
+  const T = await import('../modules/lan-tournaments/service.ts');
+  const M = await import('../modules/lan-tournaments/matches.ts');
+  const S = await import('../modules/lan-tournaments/schema.ts');
+  if ((await db.select().from(S.tournaments)).length) return;
+  const [ev] = await db.select().from(events).where(eq(events.slug, 'frag-night-01'));
+  const [admin] = await db.select().from(schema.users).where(eq(schema.users.username, 'Overseer'));
+  if (!ev || !admin) return;
+  const at = (h: number) => new Date(ev.startsAt!.getTime() + h * H);
+  const blank = { description: '', rules: '', visibility: 'public' as const, teamMin: 1, teamMax: 1, subsMax: 0, maxEntries: null, requireApproval: false, requireCheckin: false, requireBooking: false, lanEventId: ev.id, regOpensAt: null, regClosesAt: null, checkinOpensAt: null, endsAt: null };
+  const byName = new Map(users.map((u) => [u.username, u.id]));
+  const id = (n: string) => byName.get(n)!;
+
+  // 1. the main event, in progress
+  const show = await T.createTournament({ ...blank, name: 'Frag Night Showdown', game: 'Quake Champions', platform: 'PC', mode: 'solo', format: 'single_elim', maxEntries: 8,
+    description: 'One-on-one arena shooter, single elimination. Winner takes the golden mouse.', rules: '[list]\n[*]Best of 1, final best of 3.\n[*]Maps: Blood Covenant, Ruins of Sarnath, Awoken.\n[*]Report your score straight after the match.\n[/list]',
+    config: { bestOf: 1, finalBestOf: 3, thirdPlace: true, seeding: 'manual', rankingPoints: [100, 70, 50, 35, 20, 20, 20, 20], participationPoints: 10 }, startsAt: at(3), checkinOpensAt: at(2) }, admin.id);
+  await T.setStatus(show, 'registration_open');
+  const players = ['PixelWren', 'bitcrusher', 'Lowpoly_Lou', 'NullSector', 'quietkeys', 'Marrow', 'gravwell', 'Vexa'];
+  for (const [i, n] of players.entries()) { const e = await T.registerSolo((await T.byId(show.id))!, id(n), {}, { bypass: true }); await T.setSeedsAndStations(show, [{ entryId: e.id, seed: i + 1, station: `Stage PC ${(i % 4) + 1}` }]); await T.checkIn((await T.byId(show.id))!, e, { byStaff: true }); }
+  await T.setStaff(show, id('Vexa'), 'referee');
+  await M.generateBracket((await T.byId(show.id))!);
+  let t1 = (await T.byId(show.id))!;
+  const ms = () => M.matchesOf(show.id);
+  for (const m of (await ms()).filter((x) => x.round === 1)) await M.overrideResult(t1, m, m.code === 'R1-3' ? { scoreA: 13, scoreB: 15 } : { scoreA: 15, scoreB: 9 + m.position });
+  t1 = (await T.byId(show.id))!;
+  const [sf1, sf2] = (await ms()).filter((x) => x.round === 2);
+  await M.setLive(sf1, true);
+  const ent = new Map((await T.entriesOf(show.id)).map((e) => [e.id, e]));
+  await M.reportScore(t1, sf2, { userId: ent.get(sf2.entryA!)!.userId!, side: 'a' }, { scoreA: 15, scoreB: 11 });
+  const final = (await ms()).find((x) => x.code === 'R3-1')!;
+  await M.scheduleMatch(t1, final, at(5), 'Stage PC 1');
+  await M.scheduleMatch(t1, (await ms()).find((x) => x.code === '3RD')!, at(4.5), 'Stage PC 2');
+  await T.announce(t1, 'Semi-finals are on! Grab a seat by the stage screen. The final is best of 3.', admin.id);
+
+  // 2. kart cup, taking registrations
+  const kart = await T.createTournament({ ...blank, name: 'Kart Cup', game: 'Mario Kart 8 Deluxe', platform: 'Switch', mode: 'solo', format: 'ffa', maxEntries: 16,
+    description: 'Three rounds of 4-player races. Points for every placing; most points wins.', config: { ffaRounds: 3, heatSize: 4, ffaPoints: [15, 10, 6, 3] }, startsAt: at(20), regClosesAt: at(19) }, admin.id);
+  await T.setStatus(kart, 'registration_open');
+  for (const n of ['PixelWren', 'gravwell', 'Marrow', 'quietkeys', 'bitcrusher']) await T.registerSolo((await T.byId(kart.id))!, id(n), {}, { bypass: true });
+
+  // 3. last month's doubles league, finished
+  const dbl = await T.createTournament({ ...blank, lanEventId: null, name: 'Spring Doubles', game: 'Rocket League', platform: 'PC', mode: 'team', teamMin: 2, teamMax: 2, format: 'round_robin',
+    description: '2v2 league from the spring LAN.', config: { bestOf: 1, allowDraws: false, rankingPoints: [80, 50, 30, 15], participationPoints: 5 }, startsAt: new Date(now - 30 * 24 * H) }, admin.id);
+  await T.setStatus(dbl, 'registration_open');
+  const pairs: [string, string, string][] = [['Team Boost', 'PixelWren', 'bitcrusher'], ['Aerial Aces', 'Lowpoly_Lou', 'NullSector'], ['Ceiling Shots', 'quietkeys', 'Marrow'], ['Demo Kings', 'gravwell', 'Vexa']];
+  for (const [name, a, b] of pairs) {
+    let d = (await T.byId(dbl.id))!;
+    const team = await T.createTeam(d, id(a), name, name.split(' ').map((w) => w[0]).join(''));
+    await T.inviteToTeam(d, team, id(b), 'player'); await T.answerInvite(d, team, id(b), true);
+    d = (await T.byId(dbl.id))!;
+    await T.registerTeam(d, team, {}, { bypass: true });
+  }
+  await M.generateBracket((await T.byId(dbl.id))!);
+  for (const m of await M.matchesOf(dbl.id)) await M.overrideResult((await T.byId(dbl.id))!, m, m.entryA! < m.entryB! ? { scoreA: 3 + (m.round % 2), scoreB: 1 } : { scoreA: 2, scoreB: 4 });
+  await M.publishResults((await T.byId(dbl.id))!, admin.id);
+  await db.update(S.tournaments).set({ resultsPublishedAt: new Date(now - 29 * 24 * H) }).where(eq(S.tournaments.id, dbl.id));
+  console.log('Tournament demo: a bracket in progress, a kart cup taking entries and a finished doubles league.');
+}
+
 /** A poll on the announcement thread: which game for the tournament (skipped when it already has one). */
 async function demoPoll() {
   const B = await import('../modules/lan-bookings/service.ts');
@@ -102,7 +166,7 @@ async function demoPoll() {
 }
 
 const exists = await db.execute(sql`select 1 from mod_lan_seating_events where slug = 'frag-night-01'`);
-if (rowsOf(exists).length) { await demoBookings(); await demoPoll(); console.log('LAN demo content already present.'); await closeDb(); process.exit(0); }
+if (rowsOf(exists).length) { await demoBookings(); await demoPoll(); await demoTournaments(); console.log('LAN demo content already present.'); await closeDb(); process.exit(0); }
 const start = new Date(Math.ceil((now + 2 * 24 * H) / H) * H);
 const iso = (d: Date) => d.toISOString().slice(0, 16);
 
@@ -117,7 +181,7 @@ await saveModuleSettings('lan-intranet', {
   title: 'Frag Night HQ', tagline: 'Plug in, grab a seat, check the servers.', eventStart: iso(start), timezone: 'UTC',
   wifi: '[b]Network:[/b] FRAG-LAN\n[b]Password:[/b] ask at the front desk\nWired is faster — every table has a switch port.',
   info: '[list]\n[*]No cheats, no exceptions.\n[*]Keep walkways clear of cables.\n[*]Quiet hours in the sleeping room from 02:00.\n[*]Lost something? Front desk.\n[/list]',
-  sections: 'announcements,countdown,servers,schedule,seating,pizza,caffeine,wifi,info', audience: 'everyone', refreshSeconds: 30,
+  sections: 'announcements,countdown,servers,tournaments,schedule,seating,pizza,caffeine,wifi,info', audience: 'everyone', refreshSeconds: 30,
 });
 await db.execute(sql`insert into mod_lan_intranet_announcements (title, body, level, pinned) values
   ('Doors open Friday at 18:00', 'Check in at the front desk to get your wristband and table number.', 'info', true),
@@ -145,6 +209,7 @@ resetLimits();
 for (const [ui, drink, servings, ago] of plan) if (users[ui]) await logDrink(users[ui].id, { drinkId: pick(drink), servings, minutesAgo: ago });
 await demoBookings();
 await demoPoll();
+await demoTournaments();
 const seatsTaken = (await db.select().from(bookings).where(eq(bookings.eventId, e.id))).length;
 console.log(`LAN demo ready: ${seatsTaken} seats booked, ${plan.length} drinks logged for ${users.length} members.`);
 await closeDb();

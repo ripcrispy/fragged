@@ -70,6 +70,11 @@ With `lan-event-access` on, its door desk shows who has booked the event being r
 arrived and paid, and lets the desk pick a booked member when approving their device. The member pays their booking
 price and the payment is linked to their account. The module exposes `doorList()` for this.
 
+## Tournaments
+
+With `lan-tournaments` on, a tournament linked to the event can **require a booking**: only members with a booked
+place can register. The module exposes `isBooked(eventId, userId)` and `hasBookings(eventId)` for this.
+
 ## Rules
 
 - One booking or interest per member per event.

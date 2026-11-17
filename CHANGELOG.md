@@ -6,6 +6,17 @@ The module SDK has its own version (`SDK_VERSION`, see [docs/MODULES.md](docs/MO
 ## Unreleased
 
 ### Added
+- `lan-tournaments` module: tournaments with solo or team registration (captains, invitations, substitutes,
+  approval, check-in, invitation-only and private tournaments); single and double elimination, round robin, swiss,
+  groups with playoffs, free-for-all heats and time challenges; brackets with byes, connector lines and seeding;
+  score reporting with confirmation, disputes and referee overrides, safe under concurrent submits; scheduling
+  with stations and reminders; a live spectator view; results, ranking points, a leaderboard, profile history and
+  achievements; per-tournament organiser and referee roles plus granular site permissions; seven templates with
+  matching example configs; JSON endpoints. Works with `lan-seating`, `lan-bookings` and `lan-intranet`.
+- **SDK 1.4.0**: `media.upload(viewer, file, purpose)` for storing an image as the member.
+- `achievements` 1.2: other modules can register metrics and add badge definitions.
+- `lan-bookings` 1.3: exposes `isBooked` and `hasBookings`, so tournaments can require a booking.
+- `lan-intranet` 1.3: a Tournaments section on LAN HQ, and tournament matches in the schedule.
 - `polls` module: polls on forum threads with single or multiple choice, closing times, results shown always,
   after voting or when the poll closes, optional public voters, and control by the creator and forum moderators.
 - **SDK 1.3.0**: `services.forums.thread(viewer, id)` for safely looking up a thread the viewer can see.
@@ -51,6 +62,8 @@ The module SDK has its own version (`SDK_VERSION`, see [docs/MODULES.md](docs/MO
 - README logo (`docs/assets/logo.svg`) and screenshots.
 
 ### Fixed
+- `lan-bookings` organiser chart: "interested" is now hatched in the info colour, so it stays distinct from
+  "booked" in themes where the accent and success colours are both green (Millennium Desktop, LAN Party).
 - Module permissions granted to `member` now reach every signed-in group (Established Members, Contributors,
   Moderators…), so a moderator-only account can use member features of modules. Applied when a module is
   installed or upgraded.

@@ -1,0 +1,13 @@
+{
+  "name": "Time trial challenge",
+  "summary": "Best lap time over the event; lower is better; a referee checks each attempt.",
+  "game": "Trackmania",
+  "platform": "PC",
+  "mode": "solo",
+  "format": "time_trial",
+  "config": {
+    "winCondition": "lower",
+    "scoreUnit": "time",
+    "verifyAttempts": true
+  }
+}

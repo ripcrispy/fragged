@@ -93,6 +93,22 @@ export const services = {
   forums,
 };
 
+/**
+ * SDK 1.4: store an image a member uploaded through a module form (e.g. a tournament banner). The image is
+ * re-encoded server-side (WebP, size-capped, metadata stripped) exactly like post images; `cover` gives a wide
+ * 1600×500 crop and `post` keeps the shape. Check your own permission first; this only enforces the size cap.
+ */
+import { saveUpload, fileToBuffer } from '../services/uploads.ts';
+export const media = {
+  async upload(viewer: Viewer, file: unknown, purpose: 'cover' | 'post' = 'post'): Promise<{ publicId: string; url: string } | null> {
+    if (!viewer.user) throw new CoreServiceError('Sign in to upload images.', 401);
+    const f = await fileToBuffer(file, 10_000_000);
+    if (!f) return null;
+    const up = await saveUpload(viewer.user.id, purpose, f.buf, f.name);
+    return { publicId: up.publicId, url: `/media/${up.publicId}` };
+  },
+};
+
 /** OAuth/OIDC helpers for auth-provider modules (core owns state, PKCE, nonce and account linking). */
 import { verifyIdToken, fetchProfile, createRemoteJWKSet } from '../services/oauth.ts';
 export const oidc = { verifyIdToken, fetchProfile, createRemoteJWKSet };

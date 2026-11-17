@@ -44,6 +44,9 @@ core.
 - BBCode editor with live preview, quotes, spoilers, code, colour, click-to-load media embeds and link cards.
 - Tags and content-warning labels (spoilers, NSFW, sensitive topics) that readers opt into.
 - Polls on threads, with single or multiple choice, closing times and hidden-until-voted results (`polls` module).
+- LAN tournaments: solo or team sign-up; single and double elimination, round robin, swiss, groups with playoffs,
+  free-for-all heats and time challenges; score reporting with disputes; a live spectator screen; results and a
+  ranking leaderboard (`lan-tournaments` module).
 - Profiles with avatars, cover images, accent colour, signatures, Top Friends, friends-only comments and privacy
   controls.
 - Friends, blocking and muting; a live friends pane with presence.
@@ -79,6 +82,7 @@ core.
 | [`lan-intranet`](modules/lan-intranet) | Event-day page: announcements, countdown, live game-server status, schedule, Wi-Fi | off |
 | [`caffeine-tracker`](modules/caffeine-tracker) | A playful caffeine leaderboard, from "Decaf Ghost" to "GO TO HOSPITAL" | off |
 | [`lan-pizza`](modules/lan-pizza) | Group food orders: members order, pay organisers in cash, organisers tick it off and order by hand | off |
+| [`lan-tournaments`](modules/lan-tournaments) | Tournaments: solo and team registration, seven formats with brackets, score reporting and disputes, live spectator view, results, leaderboard and achievements | off |
 | [`lan-event-access`](modules/lan-event-access) | Door-desk network access: confirm entry payment, then move the device from the staging DHCP range onto the LAN (OPNsense, pfSense) | off |
 
 ## Screenshots
@@ -113,9 +117,9 @@ core.
 <summary><strong>LAN party toolkit</strong> (10 screenshots)</summary>
 <br>
 
-**LAN HQ intranet**: a countdown in the page banner, announcements, live game-server status, schedule, seat bookings, the pizza run, the caffeine leaderboard, Wi-Fi details and house rules.
+**LAN HQ intranet**: a countdown in the page banner, announcements, live game-server status, live tournaments, the schedule (with tournament matches), seat bookings, the pizza run, the caffeine leaderboard, Wi-Fi details and house rules.
 
-<img src="docs/assets/lan-intranet-v2.jpg" alt="The LAN HQ page with a countdown to doors opening in the banner, announcements, game-server status, a row of schedule, seating and pizza-run cards, a row of caffeine leaderboard and Wi-Fi cards, and house rules" width="860">
+<img src="docs/assets/lan-intranet-v3.jpg" alt="The LAN HQ page with a countdown to doors opening in the banner, announcements, game-server status, a row of tournaments, schedule and seating cards where the tournaments card shows the live semi-finals and the schedule includes tournament matches, a row of pizza-run, caffeine leaderboard and Wi-Fi cards, and house rules" width="860">
 
 **Seat booking**: click a free seat to book it. Friends are highlighted and organisers can reserve seats.
 
@@ -131,7 +135,7 @@ core.
 
 **Organiser dashboard**: bookings and interest per booking type against the places available, and sign-ups per day.
 
-<img src="docs/assets/lan-bookings-admin.jpg" alt="The LAN bookings organiser page with booked, interested, places and seats-picked totals, a demand bar per booking type, a chart of sign-ups per day for the last three weeks, and the booking page settings" width="860">
+<img src="docs/assets/lan-bookings-admin-v2.jpg" alt="The LAN bookings organiser page with booked, interested, places and seats-picked totals, a demand bar per booking type with interest hatched, a chart of sign-ups per day for the last three weeks, and the booking page settings" width="860">
 
 **Caffeine tracker**: log real drinks, watch your level decay, and top the leaderboard (responsibly).
 
@@ -152,6 +156,44 @@ core.
 **Approving a device**: pick a booked member to charge their booking price, or take the entry fee from a walk-in, then approve.
 
 <img src="docs/assets/lan-event-access-approve-v2.jpg" alt="The approve-a-device form with the device's name, MAC and staging address, a booked member chosen under Who is this device for, their 30 pound booking price filled in, the payment method and a Payment received tick" width="860">
+
+</details>
+
+<details>
+<summary><strong>LAN tournaments</strong> (8 screenshots)</summary>
+<br>
+
+**Tournament listing**: upcoming and open, live now, finished and archived, filtered by game.
+
+<img src="docs/assets/lan-tournaments-list.jpg" alt="The tournaments page with tabs for upcoming and open, live now, finished and archived, a game filter, and cards for Kart Cup with registration open and Frag Night Showdown in progress" width="860">
+
+**Tournament page**: your registration, station and next match, what's live, recent results, announcements and the format at a glance.
+
+<img src="docs/assets/lan-tournaments-overview.jpg" alt="Frag Night Showdown's overview tab showing the member registered and checked in at Stage PC 1 with their next match, a live-now panel with stage, round and progress, active matches, up-next matches with times and stations, recent results, an announcement and the tournament details" width="860">
+
+**Brackets**: every format draws its own view. Elimination brackets are joined by connector lines, with live, reported and finished states.
+
+<img src="docs/assets/lan-tournaments-bracket.jpg" alt="A single-elimination bracket with quarter-finals, semi-finals and final joined by connector lines, finished matches with winners highlighted, a live semi-final, a reported semi-final, and a separate 3rd-place match" width="860">
+
+**Reporting a score**: one side reports, the other confirms or disputes, and referees settle disputes.
+
+<img src="docs/assets/lan-tournaments-match.jpg" alt="A semi-final match page awaiting confirmation, showing the reported 15 to 11 score, a button to confirm it, a box to explain a dispute, and a form to report a different score" width="860">
+
+**Spectator view**: for the big screen. Live and next matches, the bracket, results and announcements, refreshed every 10 seconds, with a fullscreen button.
+
+<img src="docs/assets/lan-tournaments-live.jpg" alt="The spectator view with live-now and up-next panels, the full bracket, recent results, announcements and a progress bar" width="860">
+
+**Running it**: registrations, seeds, stations and check-in, staff roles, bracket tools, scheduling, disputes and publishing on one page.
+
+<img src="docs/assets/lan-tournaments-manage.jpg" alt="The manage page with status, players, approvals, check-ins and disputes totals, tournament controls, registrations with add a participant, a participants table with seeds, stations and check-in, staff with an organiser and a referee, and bracket swap and reset tools" width="860">
+
+**Leaderboard**: ranking points, titles and podiums across every published tournament. Players also earn achievements.
+
+<img src="docs/assets/lan-tournaments-leaderboard.jpg" alt="The tournament leaderboard listing players with place medals for the top three, ranking points, titles, podiums, tournaments played and match record" width="860">
+
+**Every theme**: the bracket in Frag, LAN Party, Millennium Desktop and Arcade Blue.
+
+<img src="docs/assets/lan-tournaments-themes.jpg" alt="The same bracket in four themes: Frag, LAN Party, Millennium Desktop and Arcade Blue" width="860">
 
 </details>
 

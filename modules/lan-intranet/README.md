@@ -7,8 +7,9 @@ game-server status, the schedule, Wi-Fi details, house rules, and widgets from t
 - **Admin:** Admin › LAN intranet (announcements, game servers, schedule). Look and layout are in Admin › Modules ›
   LAN party intranet › Settings.
 - **Permission:** `lan-intranet.manage`
-- **Works with:** `lan-seating` (seats booked meter), `lan-pizza` (current pizza run and deadline) and
-  `caffeine-tracker` (top 5 most caffeinated)
+- **Works with:** `lan-seating` (seats booked meter), `lan-pizza` (current pizza run and deadline),
+  `caffeine-tracker` (top 5 most caffeinated) and `lan-tournaments` (live tournaments with current and next matches;
+  scheduled matches join the schedule)
 
 ## Settings
 
@@ -18,7 +19,7 @@ game-server status, the schedule, Wi-Fi details, house rules, and widgets from t
 | Doors open | `YYYY-MM-DDTHH:MM` in the event timezone. Empty hides the countdown. |
 | Event timezone | e.g. `Europe/London` |
 | Wi-Fi, info and house rules | BBCode |
-| Sections | Comma-separated order: `announcements,countdown,servers,schedule,seating,pizza,caffeine,wifi,info`. Remove one to hide it. |
+| Sections | Comma-separated order: `announcements,countdown,servers,tournaments,schedule,seating,pizza,caffeine,wifi,info`. Remove one to hide it. Sites that saved their own list before 1.3 add `tournaments` themselves. |
 | Audience | Everyone, or signed-in members only |
 | Refresh | How often servers are probed and the page updates (10–600 s) |
 
@@ -38,6 +39,7 @@ reply cap. Only organisers with `lan-intranet.manage` can add hosts, which matte
 them.
 
 **Exposes** `schedule(viewer, from, to)` and `servers(viewer)` to other modules (`lan-bookings` shows them on its
-announcement thread). Both follow the audience setting.
+announcement thread). Both follow the audience setting. `setTournamentSource(api)` lets `lan-tournaments` register
+itself (it can't be a dependency, as that would make a cycle).
 
 **Data:** `mod_lan_intranet_announcements`, `mod_lan_intranet_servers`, `mod_lan_intranet_schedule`.
