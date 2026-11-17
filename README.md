@@ -106,9 +106,9 @@ core.
 <summary><strong>LAN party toolkit</strong> (5 screenshots)</summary>
 <br>
 
-**LAN HQ intranet**: announcements, countdown, live game-server status, schedule, seat bookings and the pizza run.
+**LAN HQ intranet**: a countdown in the page banner, announcements, live game-server status, schedule, seat bookings, the pizza run, the caffeine leaderboard, Wi-Fi details and house rules.
 
-<img src="docs/assets/lan-intranet.jpg" alt="The LAN HQ page with announcements, a countdown to doors opening, game-server status, schedule, seating meter and pizza-run widget" width="860">
+<img src="docs/assets/lan-intranet.jpg" alt="The LAN HQ page with a countdown to doors opening in the banner, announcements, game-server status, a row of schedule, seating and pizza-run cards, a row of caffeine leaderboard and Wi-Fi cards, and house rules" width="860">
 
 **Seat booking**: click a free seat to book it. Friends are highlighted and organisers can reserve seats.
 
