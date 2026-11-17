@@ -42,6 +42,8 @@ The module SDK has its own version (`SDK_VERSION`, see [docs/MODULES.md](docs/MO
 
 ### Fixed
 - The "Sticky:" label in thread lists now meets colour-contrast requirements on the highlighted row.
+- The admin dashboard's recent actions and the audit log show readable names for module actions
+  ("LAN Event Access: Approve") instead of raw codes.
 - Theme preview in Settings › Preferences now works for themes provided by modules, and updates the light/dark scheme.
 - Browsers could keep old scripts and stylesheets after an upgrade: core assets are now versioned by content hash and
   module stylesheets by module version.

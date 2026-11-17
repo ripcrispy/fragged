@@ -27,6 +27,15 @@ beforeAll(async () => {
 });
 afterAll(teardownDb);
 
+describe('audit log labels for module actions', () => {
+  it('names module actions after the module', async () => {
+    const { auditLabel } = await import('../src/web/log-labels.ts');
+    expect(auditLabel('lan-event-access.approve')).toBe('LAN Event Access: Approve');
+    expect(auditLabel('lan-bookings.crew.add')).toBe('LAN event bookings: Crew add');
+    expect(auditLabel('user.suspend')).toBe('Suspended a member');
+  });
+});
+
 describe('seat lists for booking types', () => {
   const codes = new Map(Object.entries({ A1: 'seat', A2: 'seat', A3: 'seat', B1: 'seat', B2: 'seat', C1: 'seat', C2: 'blocked', C3: 'reserved' }));
   it('understands seats, ranges and rows, and reports mistakes', () => {
