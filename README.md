@@ -108,7 +108,7 @@ core.
 
 **LAN HQ intranet**: a countdown in the page banner, announcements, live game-server status, schedule, seat bookings, the pizza run, the caffeine leaderboard, Wi-Fi details and house rules.
 
-<img src="docs/assets/lan-intranet.jpg" alt="The LAN HQ page with a countdown to doors opening in the banner, announcements, game-server status, a row of schedule, seating and pizza-run cards, a row of caffeine leaderboard and Wi-Fi cards, and house rules" width="860">
+<img src="docs/assets/lan-intranet-v2.jpg" alt="The LAN HQ page with a countdown to doors opening in the banner, announcements, game-server status, a row of schedule, seating and pizza-run cards, a row of caffeine leaderboard and Wi-Fi cards, and house rules" width="860">
 
 **Seat booking**: click a free seat to book it. Friends are highlighted and organisers can reserve seats.
 
