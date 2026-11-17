@@ -28,15 +28,15 @@
 .lb-bar-col { width: 35%; }
 .lb-bar { display: flex; height: 12px; min-width: 120px; background: var(--surface-alt); border: 1px solid var(--border-soft); border-radius: var(--radius); overflow: hidden; }
 .lb-bar-booked { background: var(--ok); }
-.lb-bar-interested { background: var(--accent); opacity: .55; }
+.lb-bar-interested { background: repeating-linear-gradient(135deg, var(--info) 0 3px, color-mix(in srgb, var(--info) 35%, transparent) 3px 6px); }
 .lb-days { list-style: none; display: flex; align-items: flex-end; gap: 3px; height: 90px; margin: 0; padding: 0 0 2px; border-bottom: 1px solid var(--border); }
 .lb-days li { flex: 1; height: 100%; display: flex; align-items: flex-end; }
-.lb-day-bar { display: flex; align-items: flex-end; width: 100%; background: var(--accent); opacity: .85; border-radius: 2px 2px 0 0; overflow: hidden; }
-.lb-day-booked { display: block; width: 100%; background: var(--ok); }
+.lb-day-bar { display: flex; align-items: flex-end; width: 100%; background: repeating-linear-gradient(135deg, var(--info) 0 3px, color-mix(in srgb, var(--info) 35%, transparent) 3px 6px); border-radius: 2px 2px 0 0; overflow: hidden; }
+.lb-day-booked { display: block; width: 100%; background: var(--ok); box-shadow: 0 -2px 0 var(--surface); }
 .lb-legend { display: flex; align-items: center; gap: 6px; }
 .lb-key { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
 .lb-key-booked { background: var(--ok); }
-.lb-key-interested { background: var(--accent); opacity: .7; margin-left: 8px; }
+.lb-key-interested { background: repeating-linear-gradient(135deg, var(--info) 0 3px, color-mix(in srgb, var(--info) 35%, transparent) 3px 6px); margin-left: 8px; }
 
 /* the panel on the announcement thread */
 .lb-panel { border-color: var(--accent); }

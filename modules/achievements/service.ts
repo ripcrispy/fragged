@@ -18,7 +18,13 @@ export const METRICS = {
 const db = () => database.db();
 const rows = (r: any): any[] => (Array.isArray(r) ? r : r?.rows ?? []);
 
+/** Counts other modules add through the exposed API (e.g. tournaments played). Values come from those modules' own data. */
+export const moduleMetrics = new Map<string, { label: string; value(userId: number): Promise<number> }>();
+export const allMetrics = (): Record<string, string> => ({ ...METRICS, ...Object.fromEntries([...moduleMetrics].map(([k, m]) => [k, m.label])) });
+
 export async function metricValue(userId: number, metric: string): Promise<number> {
+  const extra = moduleMetrics.get(metric);
+  if (extra) return extra.value(userId);
   const one = async (q: any) => Number(rows(await db().execute(q))[0]?.n ?? 0);
   switch (metric) {
     // posts count only when ≥ 10 characters so one-word spam isn't rewarded

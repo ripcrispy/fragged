@@ -172,6 +172,7 @@ boundary for bundled modules.
 | `services.coreSetting(key)` | Read a core site setting such as `site_name`. |
 | `services.forums.{postable,createThread,setSticky}` | *(SDK 1.1)* Forums the viewer may start threads in; start a thread **as the viewer**; make it sticky. Every core check applies (permissions, posting policy, rate limits, restricted terms), so a module can't post where the member couldn't. See `lan-bookings`. |
 | `services.forums.thread(viewer, id)` | *(SDK 1.3)* A thread the viewer may see (`{ id, forumId, userId, title, url, isLocked }`), or `null`. Use it before acting on a thread id from a request. See `polls`. |
+| `media.upload(viewer, file, purpose?)` | *(SDK 1.4)* Store an uploaded image **as the viewer** (`purpose` is `'post'` or `'cover'`), with the core's size, type and quota checks. Returns `{ publicId, url }`, or `null` when no file was sent. See `lan-tournaments` (banner images). |
 | `oidc.{verifyIdToken,fetchProfile,createRemoteJWKSet}` | For sign-in provider modules. |
 | `crypto.{hmac,sha256,safeEqual,randomToken}` | Keyed with the site's `APP_SECRET`. |
 | `form`, `str`, `int`, `bool`, `arr`, `setFlash` | Read form bodies safely; one-shot flash messages. |
@@ -377,6 +378,20 @@ const seating = ctx.use<{ currentSummary(): Promise<Summary | null> }>('lan-seat
 `setup`, so it follows live enable/disable. Treat an exposed API like a public API: changing it in a
 backwards-incompatible way is a major version bump.
 
+Dependencies may not form a cycle, even optional ones. When two modules need each other, let one **register
+itself** with the other instead: `lan-intranet` exposes `setTournamentSource(api)`, and `lan-tournaments` (which
+declares `lan-intranet` as optional) calls it in `start()` and clears it in `stop()`.
+
+APIs exposed by bundled modules:
+
+| Module | Exposes |
+| --- | --- |
+| `achievements` | `registerMetric(key, label, value)`, `unregisterMetric(key)`, `addDefinitions(list)`, `evaluate(userId)`: add your own metrics and badges |
+| `lan-bookings` | `isBooked(eventId, userId)`, `hasBookings(eventId)`, `doorList()` (for the Event Access door desk) |
+| `lan-seating` | `eventById`, `eventBySlug`, `listEvents`, `seatFor(eventId, userId)`, `bookingsFor`, `seatCodes`, `mapView`, `setSeatPolicy`, … |
+| `lan-intranet` | `setTournamentSource(api)` (feeds the LAN HQ Tournaments section and schedule), `schedule(viewer, from, to)` |
+| `lan-tournaments` | `liveSummary(eventId)`, `schedule(from, to)`, `historyCount(userId)` |
+
 ## Assets, styles and scripts
 
 Files in your `assets` folder are served at `/modules/<id>/<path>` while the module is enabled. Allowed types are
@@ -418,9 +433,9 @@ trust, and the module page says so. For module authors:
 
 ## Compatibility and versioning
 
-- `SDK_VERSION` (currently **1.3.0**) follows semver. 1.1 added `services.forums` and the `threadPanel` extension
-  point; 1.2 added `personalData`; 1.3 added `services.forums.thread`. Modules using them declare the matching
-  range, e.g. `sdk: "^1.3.0"`. **Minor** releases add exports, hooks or extension points.
+- `SDK_VERSION` (currently **1.4.0**) follows semver. 1.1 added `services.forums` and the `threadPanel` extension
+  point; 1.2 added `personalData`; 1.3 added `services.forums.thread`; 1.4 added `media.upload`. Modules using them
+  declare the matching range, e.g. `sdk: "^1.4.0"`. **Minor** releases add exports, hooks or extension points.
   **Major** releases may remove or change them, and are announced in the [changelog](../CHANGELOG.md) with migration
   notes.
 - Declare the range you tested against in `sdk` (e.g. `"^1.0.0"`). A module whose range doesn't match is shown as

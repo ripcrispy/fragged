@@ -12,5 +12,9 @@ account age) plus manual awards by staff.
 - **Hooks used:** `post.created`, `thread.created`, `post.reacted`, `friend.accepted`, `profile.commented`.
   Every criterion, including account age, is re-checked whenever one of these fires for a member.
 
+**Other modules** can add their own metrics and badges through `ctx.use('achievements')`: `registerMetric(key,
+label, value)`, `unregisterMetric(key)`, `addDefinitions(list)` (skips keys that exist, so admins' edits are kept)
+and `evaluate(userId)`. `lan-tournaments` adds tournaments played, wins and podiums, with four badges.
+
 Disabling the module hides everything and keeps earned
 badges for when it's re-enabled.

@@ -1,0 +1,25 @@
+{
+  "name": "1v1 fighting game, single elimination",
+  "summary": "Solo players, best of 3, best-of-5 final, 3rd-place match.",
+  "game": "Street Fighter 6",
+  "platform": "PS5",
+  "mode": "solo",
+  "maxEntries": 32,
+  "format": "single_elim",
+  "config": {
+    "bestOf": 3,
+    "finalBestOf": 5,
+    "thirdPlace": true,
+    "seeding": "manual",
+    "rankingPoints": [
+      100,
+      70,
+      50,
+      35,
+      25,
+      25,
+      25,
+      25
+    ]
+  }
+}

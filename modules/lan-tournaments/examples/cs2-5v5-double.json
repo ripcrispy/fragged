@@ -1,0 +1,27 @@
+{
+  "name": "5v5 shooter, double elimination",
+  "summary": "Teams of 5 (+1 sub), best of 1 with a best-of-3 grand final, losers’ bracket and reset.",
+  "game": "Counter-Strike 2",
+  "platform": "PC",
+  "mode": "team",
+  "teamMin": 5,
+  "teamMax": 5,
+  "subsMax": 1,
+  "maxEntries": 16,
+  "format": "double_elim",
+  "requireCheckin": true,
+  "config": {
+    "bestOf": 1,
+    "finalBestOf": 3,
+    "grandFinalReset": true,
+    "seeding": "random",
+    "rankingPoints": [
+      100,
+      70,
+      50,
+      35
+    ],
+    "participationPoints": 10
+  },
+  "rules": "[list]\n[*]Knife round for sides.\n[*]MR12, overtime MR3.\n[*]Captains report scores straight after the match.\n[/list]"
+}

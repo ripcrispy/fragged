@@ -24,7 +24,17 @@ const schedule = pg.pgTable('mod_lan_intranet_schedule', {
   endsAt: pg.timestamp('ends_at', { withTimezone: true }), location: pg.varchar('location', { length: 120 }).notNull().default(''), notes: pg.varchar('notes', { length: 300 }).notNull().default(''),
 });
 
-const SECTIONS = ['announcements', 'countdown', 'servers', 'schedule', 'seating', 'pizza', 'caffeine', 'wifi', 'info'] as const;
+const SECTIONS = ['announcements', 'countdown', 'servers', 'tournaments', 'schedule', 'seating', 'pizza', 'caffeine', 'wifi', 'info'] as const;
+
+/**
+ * lan-tournaments plugs itself in through setTournamentSource() (it can't be a dependency of this module: it
+ * depends on lan-bookings, which uses this module's schedule).
+ */
+let tourneySource: TournamentsApi | null = null;
+interface TournamentsApi {
+  liveSummary(eventId: number | null): Promise<{ name: string; game: string; status: string; url: string; liveUrl: string; progress: number; active: { label: string; code: string; score: string | null; station: string }[]; next: { label: string; code: string; at: Date | null; station: string }[] }[]>;
+  schedule(from: Date | null, to: Date | null): Promise<{ title: string; startsAt: Date; location: string; url: string }[]>;
+}
 const KINDS: Record<ProbeKind, string> = { tcp: 'TCP port check', source: 'Source engine (A2S query: players & map)', minecraft: 'Minecraft (server list ping)', none: 'Not monitored' };
 const LEVELS = { info: 'Info', warn: 'Heads up', urgent: 'Urgent' } as const;
 
@@ -58,7 +68,7 @@ const playersOf = (st: ServerStatus | undefined) => (st?.online && st.maxPlayers
 export default defineModule({
   id: 'lan-intranet',
   name: 'LAN party intranet',
-  version: '1.2.0',
+  version: '1.3.0',
   description: 'An event-day landing page: announcements, countdown, game-server status, schedule, Wi-Fi details and widgets from other LAN modules. Every section is configurable.',
   author: 'Fragged Forums contributors',
   license: 'AGPL-3.0-or-later',
@@ -72,7 +82,7 @@ export default defineModule({
   permissions: { manage: { label: 'Edit the LAN intranet: announcements, game servers and schedule' } },
   settings: {
     schema: settingsSchema,
-    defaults: { title: 'LAN Party HQ', tagline: 'Plug in, grab a seat, check the servers.', eventStart: '', timezone: 'UTC', wifi: '', info: '', sections: 'announcements,countdown,servers,schedule,seating,pizza,caffeine,wifi,info', audience: 'everyone', refreshSeconds: 30 },
+    defaults: { title: 'LAN Party HQ', tagline: 'Plug in, grab a seat, check the servers.', eventStart: '', timezone: 'UTC', wifi: '', info: '', sections: 'announcements,countdown,servers,tournaments,schedule,seating,pizza,caffeine,wifi,info', audience: 'everyone', refreshSeconds: 30 },
     fields: [
       { key: 'title', label: 'Page title', type: 'string', maxLength: 80 },
       { key: 'tagline', label: 'Tagline', type: 'string', maxLength: 160 },
@@ -110,6 +120,8 @@ export default defineModule({
     // For other modules (e.g. lan-bookings' announcement thread). Both follow the intranet's audience setting.
     const audienceAllows = async (viewer: { user: unknown }) => (await ctx.settings.get<Settings>()).audience === 'everyone' || !!viewer.user;
     ctx.expose({
+      /** For lan-tournaments: show live tournaments and their scheduled matches on LAN HQ (null to stop). */
+      setTournamentSource(api: TournamentsApi | null) { tourneySource = api; },
       /** Schedule items (sub-events) starting inside [from, to]; either bound may be null. */
       async schedule(viewer: { user: unknown }, from: Date | null, to: Date | null) {
         if (!(await audienceAllows(viewer))) return [];
@@ -144,6 +156,9 @@ export default defineModule({
       const start = s.eventStart ? parseLocalDateTime(s.eventStart, s.timezone) : null;
       const seating = ctx.use<{ currentSummary(): Promise<any> }>('lan-seating');
       const pizza = ctx.use<{ currentSummary(): Promise<{ name: string; statusLabel: string; closesAt: Date | null; orders: number; accepting: boolean; url: string } | null> }>('lan-pizza');
+      const tourneys = tourneySource;
+      // tournament matches join the schedule, from a day before doors open (or now) onwards
+      const tourneyMatches = tourneys ? await tourneys.schedule(new Date(Math.min(now.getTime(), start?.getTime() ?? now.getTime()) - 86_400_000), null).catch(() => []) : [];
       const caffeine = ctx.use<{ leaderboard(kind: 'now', limit: number): Promise<{ username: string; mg: number; level: string }[]> }>('caffeine-tracker');
 
       const blocks: Record<string, () => Promise<Child | null>> = {
@@ -162,14 +177,28 @@ export default defineModule({
                   <td data-pl>{playersOf(st)}</td><td data-map>{st?.map ?? ''}</td><td><span class="srv-connect">{x.connect || (x.host && x.port ? `${x.host}:${x.port}` : '')}</span></td></tr>); })}
             </tbody></table></div> : <p class="muted">No servers listed yet.</p>}
           </Box>),
-        schedule: async () => sched.length ? (
+        schedule: async () => {
+          const items = [...sched.map((e) => ({ ...e, url: null as string | null })), ...tourneyMatches.map((m) => ({ title: m.title, startsAt: m.startsAt, endsAt: null, location: m.location, url: m.url }))]
+            .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime());
+          return items.length ? (
           <Box title="Schedule">
-            <table class="data-table"><tbody>{sched.map((e) => {
+            <table class="data-table"><tbody>{items.map((e) => {
               const end = e.endsAt ?? new Date(e.startsAt.getTime() + 3600_000);
               const cls = now >= e.startsAt && now < end ? 'sched-now' : now >= end ? 'sched-past' : '';
-              return <tr class={cls}><td class="nowrap"><Time d={e.startsAt} tz={s.timezone} /></td><td><strong>{e.title}</strong>{cls === 'sched-now' ? <span class="tag tag-ok"> now</span> : null}{e.location ? <div class="muted small">{e.location}</div> : null}</td></tr>;
+              return <tr class={cls}><td class="nowrap"><Time d={e.startsAt} tz={s.timezone} /></td><td><strong>{e.url ? <a href={e.url}>{e.title}</a> : e.title}</strong>{cls === 'sched-now' ? <span class="tag tag-ok"> now</span> : null}{e.location ? <div class="muted small">{e.location}</div> : null}</td></tr>;
             })}</tbody></table>
-          </Box>) : null,
+          </Box>) : null;
+        },
+        tournaments: async () => {
+          const list = tourneys ? await tourneys.liveSummary(null).catch(() => []) : [];
+          if (!list.length) return null;
+          return <Box title="Tournaments" actions={<a href="/m/lan-tournaments">All tournaments</a>}>
+            <ul class="plain-list intranet-tourneys">{list.map((x) => <li>
+              <a href={x.status === 'in_progress' ? x.liveUrl : x.url}><strong>{x.name}</strong></a> <span class="muted small">{x.game}{x.status === 'in_progress' ? ` · ${x.progress}% played` : x.status === 'registration_open' ? ' · registration open' : ' · starting soon'}</span>
+              {x.active.length ? <div class="small">Live: {x.active.map((m, i) => <>{i ? ' · ' : ''}{m.label}{m.score ? ` (${m.score})` : ''}{m.station ? `, ${m.station}` : ''}</>)}</div> : null}
+              {x.next.length ? <div class="small muted">Next: {x.next.map((m, i) => <>{i ? ' · ' : ''}{m.label}{m.at ? <> at <Time d={m.at} tz={s.timezone} /></> : null}</>)}</div> : null}
+            </li>)}</ul></Box>;
+        },
         seating: async () => {
           const sum = seating ? await seating.currentSummary().catch(() => null) : null;
           if (!sum) return null;

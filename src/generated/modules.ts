@@ -10,12 +10,13 @@ import local4 from '../../modules/lan-event-access/index.tsx';
 import local5 from '../../modules/lan-intranet/index.tsx';
 import local6 from '../../modules/lan-pizza/index.tsx';
 import local7 from '../../modules/lan-seating/index.tsx';
-import local8 from '../../modules/media-embeds/index.ts';
-import local9 from '../../modules/oauth-providers/index.ts';
-import local10 from '../../modules/polls/index.tsx';
-import local11 from '../../modules/profile-spotify/index.tsx';
-import local12 from '../../modules/retro-themes/index.ts';
-import local13 from '../../modules/theme-pack/index.ts';
+import local8 from '../../modules/lan-tournaments/index.tsx';
+import local9 from '../../modules/media-embeds/index.ts';
+import local10 from '../../modules/oauth-providers/index.ts';
+import local11 from '../../modules/polls/index.tsx';
+import local12 from '../../modules/profile-spotify/index.tsx';
+import local13 from '../../modules/retro-themes/index.ts';
+import local14 from '../../modules/theme-pack/index.ts';
 void createRequire;
 
 export const installedModules: InstalledModule[] = [
@@ -27,10 +28,11 @@ export const installedModules: InstalledModule[] = [
   { def: local5, dir: path.resolve('modules', "lan-intranet"), source: 'local' },
   { def: local6, dir: path.resolve('modules', "lan-pizza"), source: 'local' },
   { def: local7, dir: path.resolve('modules', "lan-seating"), source: 'local' },
-  { def: local8, dir: path.resolve('modules', "media-embeds"), source: 'local' },
-  { def: local9, dir: path.resolve('modules', "oauth-providers"), source: 'local' },
-  { def: local10, dir: path.resolve('modules', "polls"), source: 'local' },
-  { def: local11, dir: path.resolve('modules', "profile-spotify"), source: 'local' },
-  { def: local12, dir: path.resolve('modules', "retro-themes"), source: 'local' },
-  { def: local13, dir: path.resolve('modules', "theme-pack"), source: 'local' },
+  { def: local8, dir: path.resolve('modules', "lan-tournaments"), source: 'local' },
+  { def: local9, dir: path.resolve('modules', "media-embeds"), source: 'local' },
+  { def: local10, dir: path.resolve('modules', "oauth-providers"), source: 'local' },
+  { def: local11, dir: path.resolve('modules', "polls"), source: 'local' },
+  { def: local12, dir: path.resolve('modules', "profile-spotify"), source: 'local' },
+  { def: local13, dir: path.resolve('modules', "retro-themes"), source: 'local' },
+  { def: local14, dir: path.resolve('modules', "theme-pack"), source: 'local' },
 ];

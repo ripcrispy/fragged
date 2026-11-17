@@ -1,0 +1,22 @@
+{
+  "name": "Kart racing, free-for-all heats",
+  "summary": "3 rounds of 8-player heats, points 15/12/10/8/6/4/2/1.",
+  "game": "Mario Kart 8 Deluxe",
+  "platform": "Switch",
+  "mode": "solo",
+  "format": "ffa",
+  "config": {
+    "ffaRounds": 3,
+    "heatSize": 8,
+    "ffaPoints": [
+      15,
+      12,
+      10,
+      8,
+      6,
+      4,
+      2,
+      1
+    ]
+  }
+}

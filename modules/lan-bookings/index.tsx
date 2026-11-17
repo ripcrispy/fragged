@@ -45,7 +45,7 @@ function defaultThreadBody(e: SeatEventLite, intro: string, list: TypeCount[], c
 export default defineModule({
   id: ID,
   name: 'LAN event bookings',
-  version: '1.2.0',
+  version: '1.3.0',
   description: 'Bookings for LAN events with customisable booking types (standard seats, high-speed network seats, …). Organisers announce an event with a forum thread that links to the booking page, see the interest grow, and tie booking types to areas of the seat map.',
   author: 'Fragged Forums contributors',
   license: 'AGPL-3.0-or-later',
@@ -92,6 +92,10 @@ export default defineModule({
 
     // For the door desk (lan-event-access): who has booked the event being run right now, or the next one.
     ctx.expose({
+      /** Whether a member has a booked place at an event (e.g. lan-tournaments can require one to register). */
+      async isBooked(eventId: number, userId: number) { return (await bookingOf(eventId, userId))?.status === 'booked'; },
+      /** Whether bookings are set up for an event at all. */
+      async hasBookings(eventId: number) { const c = await configFor(eventId); return !!c && c.status !== 'draft'; },
       async doorList() {
         const seat = ctx.use<SeatingApi>('lan-seating');
         if (!seat) return null;

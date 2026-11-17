@@ -1,0 +1,23 @@
+{
+  "name": "3v3 car football, groups then playoffs",
+  "summary": "Teams of 3, two groups (round robin), top 2 from each into a single-elimination playoff.",
+  "game": "Rocket League",
+  "platform": "PC",
+  "mode": "team",
+  "teamMin": 3,
+  "teamMax": 3,
+  "subsMax": 1,
+  "format": "groups_playoffs",
+  "config": {
+    "bestOf": 1,
+    "finalBestOf": 3,
+    "groups": 2,
+    "advancePerGroup": 2,
+    "playoff": "single_elim",
+    "points": {
+      "win": 3,
+      "draw": 1,
+      "loss": 0
+    }
+  }
+}
