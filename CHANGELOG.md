@@ -21,6 +21,15 @@ The module SDK has its own version (`SDK_VERSION`, see [docs/MODULES.md](docs/MO
 - New LAN-party modules: `lan-seating` (seat maps and booking), `lan-intranet` (announcements, countdown,
   game-server status, schedule, Wi-Fi), `caffeine-tracker` (caffeine leaderboard with half-life decay) and
   `lan-pizza` (group food orders paid in cash, with payment tracking, shopping list and arrival notifications).
+- `lan-bookings` module: bookings for LAN events with customisable booking types (e.g. standard and high-speed
+  network seats) tied to areas of the seat map, interest tracking with a demand dashboard and CSV export, event
+  rules and terms members agree to, an event crew list, and a sticky forum announcement thread with a live panel
+  (rules, crew, who has booked with their seat, sub-events, game servers and the seat map). The LAN Event Access door
+  desk lists booked members, checks them in and charges their booking price.
+- **SDK 1.1.0**: `services.forums` (start threads and make them sticky as the viewer, with every core check) and
+  the `threadPanel` extension point.
+- `lan-seating` 1.1.0: seat policies other modules can register, plus more of its API exposed. `lan-intranet` 1.2.0
+  exposes its schedule and game servers.
 - `lan-event-access` module: a door desk that records entry payments and approves attendees' devices on the
   firewall, moving them from a staging DHCP range to the LAN. Supports OPNsense (Kea, Dnsmasq, legacy ISC via a
   firewall alias) and pfSense (REST API package), with a demo mode.
@@ -32,6 +41,7 @@ The module SDK has its own version (`SDK_VERSION`, see [docs/MODULES.md](docs/MO
 - README logo (`docs/assets/logo.svg`) and screenshots.
 
 ### Fixed
+- The "Sticky:" label in thread lists now meets colour-contrast requirements on the highlighted row.
 - Theme preview in Settings › Preferences now works for themes provided by modules, and updates the light/dark scheme.
 - Browsers could keep old scripts and stylesheets after an upgrade: core assets are now versioned by content hash and
   module stylesheets by module version.

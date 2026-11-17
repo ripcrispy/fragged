@@ -5,8 +5,15 @@
   if (f) {
     const sel = f.querySelector('select[name="attendee"]');
     const box = f.querySelector('[data-lea-new]');
-    const sync = () => { box.hidden = sel.value !== 'new'; };
-    sel.addEventListener('change', sync); sync();
+    const amount = f.querySelector('input[name="amount"]');
+    // payment is taken for a new attendee or a booked member; someone who already paid just adds a device
+    const sync = () => { box.hidden = !(sel.value === 'new' || sel.value.startsWith('booking:')); };
+    sel.addEventListener('change', () => {
+      const price = sel.selectedOptions[0]?.dataset.price;
+      if (amount) amount.value = price ?? '';
+      sync();
+    });
+    sync();
   }
   // Door desk: refresh the waiting list while nobody is typing or reading a dialog.
   const desk = document.querySelector('[data-lea-refresh]');

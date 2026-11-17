@@ -6,7 +6,7 @@ import AxeBuilder from '@axe-core/playwright';
 const base = process.env.BASE ?? 'http://localhost:3000';
 const themes = (process.env.THEMES ?? 'classic,dark,light,contrast,frag,millennium,cartridge,arcade,lanparty,bulletin').split(',');
 const guestPages = ['/', '/forums', '/f/general-chat', '/t/2', '/login', '/register', '/rules', '/members', '/search?q=test', '/u/PixelWren', '/emoji', '/m/achievements', '/m/lan-intranet', '/m/lan-seating', '/m/lan-seating/frag-night-01', '/m/caffeine-tracker', '/m/lan-pizza'];
-const userPages = ['/', '/t/2', '/t/5', '/u/PixelWren', '/messages', '/friends', '/notifications', '/settings', '/settings/preferences', '/settings/security', '/f/general-chat/new', '/t/2/reply', '/m/lan-intranet', '/m/lan-seating/frag-night-01', '/m/caffeine-tracker', '/m/lan-pizza', '/m/lan-event-access'];
+const userPages = ['/', '/t/2', '/t/5', '/u/PixelWren', '/messages', '/friends', '/notifications', '/settings', '/settings/preferences', '/settings/security', '/f/general-chat/new', '/t/2/reply', '/m/lan-intranet', '/m/lan-seating/frag-night-01', '/m/caffeine-tracker', '/m/lan-pizza', '/m/lan-event-access', '/m/lan-bookings', '/m/lan-bookings/frag-night-01'];
 const b = await chromium.launch();
 const found = new Map();
 async function audit(page, label) {
@@ -45,7 +45,7 @@ for (const path of guestPages) { await g.goto(base + path); await audit(g, `gues
 { const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } }); const ap = await ctx.newPage();
   await ap.goto(base + '/login'); await ap.fill('#lp-login', 'Overseer'); await ap.fill('#lp-pw', PW);
   await Promise.all([ap.waitForNavigation(), ap.click('.login-panel button.btn-primary')]);
-  for (const path of ['/admin', '/admin/audit', '/admin/audit?category=config', '/admin/security', '/admin/security?category=signin', '/admin/settings', '/admin/terms', '/mod', '/mod/reports', '/admin/modules', '/admin/m/lan-seating/events', '/admin/m/lan-intranet/manage', '/admin/m/caffeine-tracker/drinks', '/admin/m/achievements/definitions', '/admin/m/lan-pizza/runs', '/admin/m/lan-pizza/runs/1', '/admin/m/lan-pizza/menu', '/admin/m/lan-event-access/desk', '/admin/m/lan-event-access/desk/approve?mac=02:4c:41:4e:00:02']) { await ap.goto(base + path); await audit(ap, `admin ${path}`); }
+  for (const path of ['/admin', '/admin/audit', '/admin/audit?category=config', '/admin/security', '/admin/security?category=signin', '/admin/settings', '/admin/terms', '/mod', '/mod/reports', '/admin/modules', '/admin/m/lan-seating/events', '/admin/m/lan-intranet/manage', '/admin/m/caffeine-tracker/drinks', '/admin/m/achievements/definitions', '/admin/m/lan-pizza/runs', '/admin/m/lan-pizza/runs/1', '/admin/m/lan-pizza/menu', '/admin/m/lan-event-access/desk', '/admin/m/lan-event-access/desk/approve?mac=02:4c:41:4e:00:02', '/admin/m/lan-bookings/events', '/admin/m/lan-bookings/events/1']) { await ap.goto(base + path); await audit(ap, `admin ${path}`); }
   await ctx.close(); }
 await b.close();
 let bad = 0;

@@ -37,4 +37,7 @@ Probes run on the server every *refresh* seconds while the module is enabled, wi
 reply cap. Only organisers with `lan-intranet.manage` can add hosts, which matters because the server connects to
 them.
 
+**Exposes** `schedule(viewer, from, to)` and `servers(viewer)` to other modules (`lan-bookings` shows them on its
+announcement thread). Both follow the audience setting.
+
 **Data:** `mod_lan_intranet_announcements`, `mod_lan_intranet_servers`, `mod_lan_intranet_schedule`.

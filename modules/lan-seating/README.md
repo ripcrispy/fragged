@@ -36,5 +36,16 @@ VVVV..XXSS
 - If an organiser edits the map and a booked seat disappears, that booking is cancelled and the member is notified.
 - Closing an account removes its bookings.
 
-**Data:** `mod_lan_seating_events`, `mod_lan_seating_bookings`. **Exposes** `currentSummary()` and `seatOf(userId)` to
-other modules (used by `lan-intranet`).
+## For other modules
+
+**Exposes** `currentSummary()`, `seatOf(userId)`, `seatFor(eventId, userId)`, `eventById(id)`, `eventBySlug(slug)`,
+`listEvents(includeDrafts)`, `bookingsFor(eventId)`, `seatCodes(eventId)`, `releaseSeat(eventId, userId)`,
+`mapView(eventId, page)` (a read-only seat map to embed) and `setSeatPolicy(owner, policy)`. Used by `lan-intranet`
+and `lan-bookings`.
+
+A **seat policy** decides which seats a member may book themselves: it returns seat areas to label on the map, the
+seats the member may pick, or a reason they can't book yet. Policies are registered by modules that depend on
+seating (seating never depends on them), from their `start()` and cleared in `stop()`. Organisers assigning seats are
+never restricted.
+
+**Data:** `mod_lan_seating_events`, `mod_lan_seating_bookings`.

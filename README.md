@@ -70,6 +70,7 @@ core.
 | [`oauth-providers`](modules/oauth-providers) | Sign in with Google, Discord, Facebook, Apple, GitHub (when configured) | on |
 | [`dev-auth`](modules/dev-auth) | A fake identity provider for testing sign-in flows (development only) | on |
 | [`lan-seating`](modules/lan-seating) | LAN-party seat maps and seat booking | off |
+| [`lan-bookings`](modules/lan-bookings) | LAN event bookings: custom booking types tied to the seat map, interest tracking, and a sticky forum announcement thread | off |
 | [`lan-intranet`](modules/lan-intranet) | Event-day page: announcements, countdown, live game-server status, schedule, Wi-Fi | off |
 | [`caffeine-tracker`](modules/caffeine-tracker) | A playful caffeine leaderboard, from "Decaf Ghost" to "GO TO HOSPITAL" | off |
 | [`lan-pizza`](modules/lan-pizza) | Group food orders: members order, pay organisers in cash, organisers tick it off and order by hand | off |
@@ -104,7 +105,7 @@ core.
 </details>
 
 <details>
-<summary><strong>LAN party toolkit</strong> (7 screenshots)</summary>
+<summary><strong>LAN party toolkit</strong> (10 screenshots)</summary>
 <br>
 
 **LAN HQ intranet**: a countdown in the page banner, announcements, live game-server status, schedule, seat bookings, the pizza run, the caffeine leaderboard, Wi-Fi details and house rules.
@@ -114,6 +115,18 @@ core.
 **Seat booking**: click a free seat to book it. Friends are highlighted and organisers can reserve seats.
 
 <img src="docs/assets/lan-seating.jpg" alt="An interactive seat map with booked, free, reserved and unavailable seats and a legend" width="860">
+
+**LAN event bookings, announced in the forums**: a sticky thread with a live panel: the event rules and terms, the crew who'll be there, who has booked each booking type with their seat, what's on, the game servers and the seat map. Members can reply as usual.
+
+<img src="docs/assets/lan-bookings-thread.jpg" alt="A sticky forum thread announcing Frag Night 01, with a live booking panel above the posts showing the event rules and terms, the event crew grouped by role, who has booked each booking type with their seat, the members who are interested, the sub-events, the game servers and a seat map with the high-speed row outlined" width="860">
+
+**Booking page**: customisable booking types such as a standard seat, a high-speed network seat or a spectator ticket. Book a place and agree to the rules, or just register your interest.
+
+<img src="docs/assets/lan-bookings-page.jpg" alt="The booking page for Frag Night 01 with booked and interested counts, the member's registered interest, cards for three booking types with prices and places left, the event rules and terms, and forms to book a place or update their interest" width="860">
+
+**Organiser dashboard**: bookings and interest per booking type against the places available, and sign-ups per day.
+
+<img src="docs/assets/lan-bookings-admin.jpg" alt="The LAN bookings organiser page with booked, interested, places and seats-picked totals, a demand bar per booking type, a chart of sign-ups per day for the last three weeks, and the booking page settings" width="860">
 
 **Caffeine tracker**: log real drinks, watch your level decay, and top the leaderboard (responsibly).
 
@@ -127,13 +140,13 @@ core.
 
 <img src="docs/assets/lan-pizza-organiser.jpg" alt="The organiser screen for a pizza run with cash totals, a shopping list split by paid and unpaid, and an orders table with payment buttons" width="860">
 
-**Event access door desk**: new devices wait on the staging network until the desk confirms payment, then one click moves them onto the LAN through your OPNsense or pfSense firewall.
+**Event access door desk**: new devices wait on the staging network until the desk confirms payment, then one click moves them onto the LAN through your OPNsense or pfSense firewall. Booked members are listed with their booking, seat and whether they've arrived.
 
-<img src="docs/assets/lan-event-access-desk.jpg" alt="The Event access door desk with devices waiting on staging addresses, approved devices showing their LAN address and an On the LAN status, and attendee payments by cash, card, paid in advance and free entry" width="860">
+<img src="docs/assets/lan-event-access-desk-v2.jpg" alt="The Event access door desk with devices waiting on staging addresses, the members booked for Frag Night 01 with their booking type, price, seat and whether they have arrived and paid, approved devices with their LAN address and an On the LAN status, and attendee payments by card and cash" width="860">
 
-**Approving a device**: record the entry payment, optionally link the attendee's Fragged account, and approve.
+**Approving a device**: pick a booked member to charge their booking price, or take the entry fee from a walk-in, then approve.
 
-<img src="docs/assets/lan-event-access-approve.jpg" alt="The approve-a-device form showing the device's name, MAC and staging address, and payment fields for a new attendee: name, Fragged username, amount, payment method and a Payment received tick" width="860">
+<img src="docs/assets/lan-event-access-approve-v2.jpg" alt="The approve-a-device form with the device's name, MAC and staging address, a booked member chosen under Who is this device for, their 30 pound booking price filled in, the payment method and a Payment received tick" width="860">
 
 </details>
 

@@ -10,6 +10,9 @@
 .seat-free { background: var(--ok-bg); border-color: var(--ok); }
 .seat-bookable { cursor: pointer; }
 .seat-bookable:hover, .seat-bookable:focus-visible { background: var(--ok); color: var(--surface); }
+/* seats tied to a booking type (lan-bookings), e.g. high-speed network seats */
+.seat-zone { box-shadow: inset 0 0 0 2px var(--accent); }
+span.seat-free:not(.seat-bookable) { cursor: default; }
 .seat-taken { background: var(--info-bg); border-color: var(--info); }
 .seat-taken:hover { border-width: 2px; }
 .seat-friend { background: var(--warn-bg); border-color: var(--warn); border-width: 2px; }
@@ -25,3 +28,4 @@
 .seat-list { margin-top: 10px; } .seat-list > summary { cursor: pointer; font-weight: bold; }
 .layout-input { font-family: var(--font-mono); letter-spacing: .25em; line-height: 1.4; }
 .lan-event-list a { text-decoration: underline; }
+.seat-summary a:not(.btn) { text-decoration: underline; }
