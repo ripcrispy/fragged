@@ -209,6 +209,18 @@ export interface ThreadPanel {
   render(args: { viewer: Viewer; thread: ThreadPanelThread; ctx: PageCtx }): Child | null | Promise<Child | null>;
 }
 
+/**
+ * A module's share of a member's personal data (SDK 1.2). `export` returns JSON-ready data for the member's download;
+ * `erase` removes it, or anonymises what must be kept (e.g. payment records), when the member asks.
+ */
+export interface PersonalDataSource {
+  id: string;
+  /** shown to members, e.g. "LAN seat bookings" */
+  label: string;
+  export(userId: number): Promise<unknown>;
+  erase?(userId: number): Promise<void>;
+}
+
 // ───────────────────────────── module context ─────────────────────────────
 
 export interface ModuleLogger { debug(m: string, f?: Record<string, unknown>): void; info(m: string, f?: Record<string, unknown>): void; warn(m: string, f?: Record<string, unknown>): void; error(m: string, f?: Record<string, unknown>): void }
@@ -244,6 +256,8 @@ export interface ModuleContext {
     adminUserPanel(p: AdminUserPanel): void;
     /** SDK 1.1: a box above the posts of a thread. */
     threadPanel(p: ThreadPanel): void;
+    /** SDK 1.2: include this module's data in members' downloads and erase it on request. */
+    personalData(p: PersonalDataSource): void;
   };
   /** Render a full page inside the site shell. */
   render(c: C, title: string, body: Child, opts?: { crumbs?: { label: string; href?: string }[]; noPane?: boolean; status?: number }): Promise<Response>;

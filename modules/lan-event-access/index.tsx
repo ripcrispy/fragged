@@ -1,13 +1,13 @@
 /** @jsxImportSource hono/jsx */
 import {
   defineModule, z, Box, Csrf, Notice, ActionButton, Field, TextArea, Select, Checkbox, Time, Stat, EmptyState, UserLink,
-  form, str, int, bool, setFlash, cleanLine, cleanText, services, ServiceError,
+  form, str, int, bool, setFlash, cleanLine, cleanText, services, ServiceError, database, eq,
   type ModuleContext, type RequestContext, type PageCtx, type Viewer,
 } from '../../src/sdk/index.ts';
 import { BACKENDS, makeBackend, demoPlugIn, normaliseMac, parseRange, inRange, FirewallError, type BackendId, type BackendConfig } from './backends.ts';
 import {
   METHODS, TAKEN_AT_DOOR, STATE_LABELS, parseMoney, formatMoney, approveDevice, revokeDevice, deskState, syncWithFirewall, moneySummary,
-  devicesForUser, forgetUser, attendeeById, listAttendees, type Method, type DeviceState,
+  devicesForUser, forgetUser, attendeeById, listAttendees, attendees, devices, type Method, type DeviceState,
 } from './service.ts';
 
 /** What the door desk reads from lan-bookings (optional): who has booked the event being run. */
@@ -36,11 +36,11 @@ const methodOptions = Object.entries(METHODS) as [string, string][];
 export default defineModule({
   id: 'lan-event-access',
   name: 'LAN Event Access',
-  version: '1.1.0',
+  version: '1.2.0',
   description: 'Door-desk network access for LAN parties. New devices get a staging address from your OPNsense or pfSense firewall; once the desk confirms payment, one click moves them into the LAN DHCP section (Kea reservation, Dnsmasq host, pfSense static mapping or an OPNsense firewall alias).',
   author: 'Fragged Forums contributors',
   license: 'AGPL-3.0-or-later',
-  sdk: '^1.0.0',
+  sdk: '^1.2.0',
   enabledByDefault: false,
   optionalDependencies: { 'lan-bookings': '^1.1.0' },
   migrations: 'migrations',
@@ -100,6 +100,18 @@ export default defineModule({
     ctx.register.adminSection({ slug: 'desk', label: 'Event access', permission: P.desk });
     ctx.register.navItem({ href: '/m/lan-event-access', label: 'Network access', area: 'user-menu', order: 60, visible: async (v) => !!v.user && (await v.can(P.view)) });
     ctx.hooks.on('user.closed', async ({ userId }) => { await forgetUser(userId); });
+    ctx.register.personalData({
+      id: 'lan-event-access', label: 'LAN network access and entry payments',
+      async export(userId) {
+        const mine = await database.db().select().from(attendees).where(eq(attendees.userId, userId));
+        return Promise.all(mine.map(async (a) => ({
+          name: a.name, amountCents: a.amountCents, method: a.method, note: a.note, paid: a.createdAt,
+          devices: (await database.db().select({ hostname: devices.hostname, mac: devices.mac, ip: devices.ip, status: devices.status, approved: devices.approvedAt, revoked: devices.revokedAt }).from(devices).where(eq(devices.attendeeId, a.id))),
+        })));
+      },
+      // the payment is the organisers' record: it stays, but without the member's name or account
+      erase: (userId) => forgetUser(userId),
+    });
 
     // ── member page ──
     ctx.routes.get('/', async (c) => {

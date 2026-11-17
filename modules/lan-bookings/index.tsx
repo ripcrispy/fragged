@@ -6,7 +6,7 @@ import {
 } from '../../src/sdk/index.ts';
 import {
   configs, types, bookings, STATUSES, configFor, configForThread, allConfigs, typesFor, bookingOf, setUp, counts, signupsByDay,
-  bookPlace, registerInterest, cancel, seatAccess, seatZones, parseSeatSpec, parseMoney, formatMoney, forgetUser,
+  bookPlace, registerInterest, cancel, seatAccess, seatZones, parseSeatSpec, parseMoney, formatMoney, forgetUser, staff,
   PANEL_SECTIONS, CREW_ROLES, panelSectionsOf, crewFor, addCrew, removeCrew, type PanelSection,
   type SeatingApi, type SeatEventLite, type Status, type TypeCount,
 } from './service.ts';
@@ -45,11 +45,11 @@ function defaultThreadBody(e: SeatEventLite, intro: string, list: TypeCount[], c
 export default defineModule({
   id: ID,
   name: 'LAN event bookings',
-  version: '1.1.0',
+  version: '1.2.0',
   description: 'Bookings for LAN events with customisable booking types (standard seats, high-speed network seats, …). Organisers announce an event with a forum thread that links to the booking page, see the interest grow, and tie booking types to areas of the seat map.',
   author: 'Fragged Forums contributors',
   license: 'AGPL-3.0-or-later',
-  sdk: '^1.1.0',
+  sdk: '^1.2.0',
   enabledByDefault: false,
   dependencies: { 'lan-seating': '^1.1.0' },
   optionalDependencies: { 'lan-intranet': '^1.2.0' },
@@ -120,6 +120,20 @@ export default defineModule({
     ctx.register.navItem({ href: '/m/lan-bookings', label: 'Book a LAN', icon: 'calendar', area: 'main', order: 64, visible: (v) => v.can(P.view) });
     ctx.register.adminSection({ slug: 'events', label: 'LAN bookings', permission: P.manage });
     ctx.hooks.on('user.closed', async ({ userId }) => { await forgetUser(userId); });
+    ctx.register.personalData({
+      id: 'lan-bookings', label: 'LAN event bookings',
+      async export(userId) {
+        const s = ctx.use<SeatingApi>('lan-seating');
+        const eventName = async (id: number) => (await s?.eventById(id))?.name ?? `event #${id}`;
+        const mine = await db().select({ b: bookings, type: types.name, price: types.priceCents }).from(bookings).leftJoin(types, eq(types.id, bookings.typeId)).where(eq(bookings.userId, userId));
+        const crew = await db().select().from(staff).where(eq(staff.userId, userId));
+        return {
+          bookings: await Promise.all(mine.map(async ({ b, type, price }) => ({ event: await eventName(b.eventId), status: b.status, type, priceCents: price, note: b.note, agreedToTerms: b.termsAcceptedAt, created: b.createdAt }))),
+          crew: await Promise.all(crew.map(async (c) => ({ event: await eventName(c.eventId), role: c.role, note: c.note }))),
+        };
+      },
+      erase: (userId) => forgetUser(userId),
+    });
 
     // Events with bookings that a viewer may see (drafts only for organisers).
     const visibleEvents = async (v: Viewer) => {

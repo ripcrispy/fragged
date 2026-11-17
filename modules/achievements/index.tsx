@@ -28,11 +28,11 @@ function definitionValues(b: Record<string, unknown>) {
 export default defineModule({
   id: 'achievements',
   name: 'Achievements',
-  version: '1.0.0',
+  version: '1.1.0',
   description: 'Badges awarded automatically for taking part (posts, threads, reactions, friendships), plus manual awards by staff.',
   author: 'Fragged Forums contributors',
   license: 'AGPL-3.0-or-later',
-  sdk: '^1.0.0',
+  sdk: '^1.2.0',
   migrations: 'migrations',
   assets: 'public',
   styles: ['achievements.css'],
@@ -44,6 +44,11 @@ export default defineModule({
   },
 
   setup(ctx: ModuleContext) {
+    ctx.register.personalData({
+      id: 'achievements', label: 'Achievements',
+      export: async (userId) => (await db().select({ name: defs.name, awarded: awards.awardedAt, revoked: awards.revokedAt }).from(awards).innerJoin(defs, eq(defs.id, awards.achievementId)).where(eq(awards.userId, userId))),
+      erase: async (userId) => { await db().delete(awards).where(eq(awards.userId, userId)); },
+    });
     const tz = (c: any) => c.get('page').viewer.user?.timezone ?? 'UTC';
 
     // ── award on activity ──

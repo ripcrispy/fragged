@@ -348,6 +348,7 @@ All `ctx.register.*` calls are made in `setup()` and are active only while your 
 | `modQueue({ id, label, href, permission, count })` | A queue in the moderation overview and the staff badge. | |
 | `adminUserPanel({ id, title, permission, order, render })` | A panel on Admin › Users › member. | `achievements` |
 | `threadPanel({ id, order, render })` | *(SDK 1.1)* A box above a thread's posts. `render({ viewer, thread, ctx })` returns `null` for threads it doesn't care about. | `lan-bookings` |
+| `personalData({ id, label, export, erase })` | *(SDK 1.2)* Your module's share of a member's data. `export(userId)` returns JSON-ready data for their download in Settings › Your data; `erase(userId)` removes it (or anonymises records you must keep) when they ask. Every module that stores per-member data should register one. | all LAN modules, `achievements` |
 
 Main-nav icons available: `home forums new search members messages rules calendar monitor cup seat pizza star`.
 
@@ -407,14 +408,14 @@ trust, and the module page says so. For module authors:
    response-size caps.
 7. **Secrets come from environment variables**, never settings, the database or logs.
 8. **Audit privileged actions** with `services.audit(actorId, '<id>.<verb>', …)`.
-9. **Respect privacy.** Handle `user.closed`, honour blocks when showing member-to-member content, and give members
+9. **Respect privacy.** Register `personalData` so members can download and erase your data, handle `user.closed`, honour blocks when showing member-to-member content, and give members
    an opt-out for anything public about them (see `caffeine-tracker`'s leaderboard opt-out).
 10. Keep timers in `start`/`stop`, and call `unref()` so they don't keep the process alive.
 
 ## Compatibility and versioning
 
-- `SDK_VERSION` (currently **1.1.0**) follows semver. 1.1 added `services.forums` and the `threadPanel` extension
-  point; modules using them declare `sdk: "^1.1.0"`. **Minor** releases add exports, hooks or extension points.
+- `SDK_VERSION` (currently **1.2.0**) follows semver. 1.1 added `services.forums` and the `threadPanel` extension
+  point; 1.2 added the `personalData` extension point. Modules using them declare `sdk: "^1.1.0"` or `"^1.2.0"`. **Minor** releases add exports, hooks or extension points.
   **Major** releases may remove or change them, and are announced in the [changelog](../CHANGELOG.md) with migration
   notes.
 - Declare the range you tested against in `sdk` (e.g. `"^1.0.0"`). A module whose range doesn't match is shown as

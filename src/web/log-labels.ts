@@ -87,7 +87,8 @@ export const AUDIT_ACTIONS: Record<string, LabelDef> = {
   'module.settings': { label: 'Changed module settings', category: 'config' },
   'security.export': { label: 'Downloaded security events', category: 'config' },
   'user.rename': { label: 'Changed username', category: 'account' },
-  'user.close': { label: 'Closed their account', category: 'account' },
+  'user.close': { label: 'Deleted their account', category: 'account' },
+  'user.erase_data': { label: 'Erased their data', category: 'account' },
 };
 
 export const SECURITY_CATEGORIES: Record<string, string> = {
@@ -117,7 +118,9 @@ export const SECURITY_KINDS: Record<string, LabelDef> = {
   password_changed: { label: 'Changed password', category: 'account', severity: 'notice' },
   password_added: { label: 'Added a password', category: 'account', severity: 'notice' },
   username_changed: { label: 'Changed username', category: 'account', severity: 'notice' },
-  account_closed: { label: 'Closed account', category: 'account', severity: 'notice' },
+  account_closed: { label: 'Deleted account', category: 'account', severity: 'notice' },
+  data_exported: { label: 'Downloaded their data', category: 'account', severity: 'notice' },
+  data_erased: { label: 'Erased their data', category: 'account', severity: 'notice' },
   provider_linked: { label: 'Connected a sign-in provider', category: 'providers', severity: 'notice' },
   provider_unlinked: { label: 'Disconnected a sign-in provider', category: 'providers', severity: 'notice' },
   session_revoked: { label: 'Signed out a session', category: 'sessions', severity: 'info' },

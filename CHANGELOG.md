@@ -6,6 +6,13 @@ The module SDK has its own version (`SDK_VERSION`, see [docs/MODULES.md](docs/MO
 ## Unreleased
 
 ### Added
+- **Settings › Your data**: members can download everything held about their account as JSON, erase chosen parts
+  of it (profile, posts and threads, sent messages, images, activity, connections, add-on data) while keeping the
+  account, and delete their account with or without their content. The last full administrator must hand over
+  full access to another member before deleting their account.
+- **SDK 1.2.0**: the `personalData` extension point; every bundled module that stores member data uses it.
+- Direct messages stay append-only, but a member may erase messages they sent through an audited erasure mode
+  (migration 0005). Conversations with an open report are kept until moderators have reviewed them.
 - **Open-source release as Fragged Forums**, licensed AGPL-3.0-or-later, with contributor docs, a security policy
   and issue templates.
 - **Module system and SDK 1.0.0**: a versioned public SDK; module manifests with dependencies, optional dependencies,

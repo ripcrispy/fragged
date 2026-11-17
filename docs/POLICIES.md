@@ -33,16 +33,32 @@ It does not stop them messaging; the UI says so. Conversation-level mute does th
   original text is retained.
 - Restricted terms: `block`/`hold` both prevent sending (DMs are never queued for staff reading); `flag`
   records a match *without* storing message text; `redact` masks on display.
-- Retention: kept for the life of the service. Legal obligations (erasure requests, court orders) override
-  this; such handling is a manual, documented administrator process (direct database work, recorded in the
-  audit log) — the product does not promise absolute permanence.
+- Retention: kept for the life of the service, except that a member may **erase messages they sent** from
+  Settings › Your data. The trigger allows this only inside a transaction that has switched on erasure mode
+  (`set_config('fragged.erasure', 'on', true)`, migration 0005), and only to blank the text and links or remove
+  attachments; nothing can rewrite a message. Messages in a conversation with an **open report** are kept until
+  the report is handled. Court orders and other legal obligations remain a manual administrator process.
 
-## Account closure
+## Your data: download, erase, delete account
 
-Self-service at Settings › Account (requires re-authentication + typing the username). It revokes sessions,
-clears email/password/profile/avatar/cover/links, deletes linked sign-in identities and friendships, and renames
-the account to `former-member-<id>`; content displays as "Former member". Posts and DMs remain so threads and
-conversations stay coherent. Full erasure requests are handled manually by administrators.
+Self-service at **Settings › Your data**. Every action requires recent re-authentication; erasing and deleting
+also require typing the username. All three are recorded as security events (`data_exported`, `data_erased`,
+`account_closed`) and erasure and deletion in the audit log.
+
+- **Download** (5 per hour): a JSON file with the account, profile, settings, posts and threads, conversations,
+  connections, uploads (as addresses), reactions, bookmarks, drafts, notifications, sessions, security events,
+  reports made, warnings and bans, plus each module's data (`personalData` extension point). Password hashes and
+  tokens are never included.
+- **Erase** chosen parts while keeping the account: profile, posts and threads (posts show "Removed at the author's
+  request"; threads with nobody else's posts are removed), sent DMs (see retention above), uploaded images (not
+  community emoji or images in reported conversations), activity, connections and module data.
+- **Delete account**: revokes sessions; clears email, password, date of birth, profile and sign-in identities;
+  removes friendships; renames the account to `former-member-<id>`; optionally erases all content first.
+- **Kept**: security events and the audit log, moderation records (warnings, bans, staff notes), reports made by
+  other members, and records modules must keep (paid food orders; entry payments without the member's name).
+- **The last full administrator can't delete their account.** The page offers a handover form that makes another
+  active member with a verified email a full administrator (audited, and the member is notified). Closed and
+  currently banned administrators don't count.
 
 ## Moderation & audit
 

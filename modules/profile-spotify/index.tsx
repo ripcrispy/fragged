@@ -27,11 +27,11 @@ export function validateSpotifyUrl(raw: string, type: 'track' | 'playlist'): str
 export default defineModule({
   id: 'profile-spotify',
   name: 'Spotify on profiles',
-  version: '1.0.0',
+  version: '1.1.0',
   description: 'Members can show a favourite Spotify track and playlist on their profile. Links only — no Spotify account connection.',
   author: 'Fragged Forums contributors',
   license: 'AGPL-3.0-or-later',
-  sdk: '^1.0.0',
+  sdk: '^1.2.0',
   // with Media embeds enabled the links play in a click-to-load player; without it they show as plain links
   optionalDependencies: { 'media-embeds': '^1.0.0' },
   migrations: 'migrations',
@@ -82,5 +82,10 @@ export default defineModule({
     });
 
     ctx.hooks.on('user.closed', async ({ userId }) => { await db().delete(spotifyLinks).where(eq(spotifyLinks.userId, userId)); });
+    ctx.register.personalData({
+      id: 'profile-spotify', label: 'Spotify on your profile',
+      export: async (userId) => (await db().select({ track: spotifyLinks.trackUrl, playlist: spotifyLinks.playlistUrl, shown: spotifyLinks.show, updated: spotifyLinks.updatedAt }).from(spotifyLinks).where(eq(spotifyLinks.userId, userId)))[0] ?? null,
+      erase: async (userId) => { await db().delete(spotifyLinks).where(eq(spotifyLinks.userId, userId)); },
+    });
   },
 });

@@ -6,7 +6,7 @@ import {
 } from '../../src/sdk/index.ts';
 import {
   rounds, menu, STATUSES, CATEGORIES, LIMITS, seedMenu, listMenu, listRounds, roundById, closedReason, parseMoney, formatMoney,
-  orderOf, placeOrder, statusLabel, isTakingOrders, cancelOrder, ordersFor, kitchenSummary, moneySummary, setPaid, setHandedOut, removeOrder, currentSummary, forgetUser,
+  orderOf, placeOrder, statusLabel, isTakingOrders, cancelOrder, ordersFor, kitchenSummary, moneySummary, setPaid, setHandedOut, removeOrder, currentSummary, forgetUser, orders, items,
   type Round, type MenuItem, type Status,
 } from './service.ts';
 
@@ -26,11 +26,11 @@ function DietTags({ m }: { m: MenuItem }) {
 export default defineModule({
   id: 'lan-pizza',
   name: 'LAN party pizza orders',
-  version: '1.0.0',
+  version: '1.1.0',
   description: 'Collect food orders for a group pizza run. Members choose from a menu; organisers collect cash in person, tick off payments, phone the order in from an automatic shopping list and announce when the food arrives. No payment or delivery services are connected.',
   author: 'Fragged Forums contributors',
   license: 'AGPL-3.0-or-later',
-  sdk: '^1.0.0',
+  sdk: '^1.2.0',
   enabledByDefault: false,
   migrations: 'migrations',
   assets: 'public',
@@ -64,6 +64,18 @@ export default defineModule({
     ctx.register.navItem({ href: '/m/lan-pizza', label: 'Pizza', icon: 'pizza', area: 'main', order: 67, visible: (v) => v.can(P.view) });
     ctx.register.adminSection({ slug: 'runs', label: 'Pizza runs', permission: P.handle });
     ctx.hooks.on('user.closed', async ({ userId }) => { await forgetUser(userId); });
+    ctx.register.personalData({
+      id: 'lan-pizza', label: 'Pizza orders',
+      async export(userId) {
+        const list = await db().select({ o: orders, run: rounds.name }).from(orders).innerJoin(rounds, eq(rounds.id, orders.roundId)).where(eq(orders.userId, userId));
+        return Promise.all(list.map(async ({ o, run }) => ({
+          run, totalCents: o.totalCents, paid: o.paid, paidAt: o.paidAt, handedOut: o.handedOut, notes: o.notes, placed: o.createdAt,
+          items: (await db().select({ name: items.name, qty: items.qty, priceCents: items.priceCents }).from(items).where(eq(items.orderId, o.id))),
+        })));
+      },
+      // paid orders are the organisers' cash record, so only unpaid ones go
+      erase: (userId) => forgetUser(userId),
+    });
 
     // ── member pages ──
     ctx.routes.get('/', async (c) => {

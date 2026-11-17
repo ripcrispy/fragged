@@ -23,7 +23,7 @@ function contributions(id: string): string[] {
   const of = (r: { entries(): { owner: string }[] }) => r.entries().filter((e) => e.owner === id).length;
   count('theme', of(registries.themes)); count('sign-in provider', of(registries.authProviders)); count('media provider', of(registries.mediaProviders));
   count('profile section', of(registries.profileSections) + of(registries.profileSettings)); count('link', of(registries.navItems));
-  count('admin page', of(registries.adminSections)); count('moderation queue', of(registries.modQueues)); count('member admin panel', of(registries.adminUserPanels)); count('thread panel', of(registries.threadPanels));
+  count('admin page', of(registries.adminSections)); count('moderation queue', of(registries.modQueues)); count('member admin panel', of(registries.adminUserPanels)); count('thread panel', of(registries.threadPanels)); count('personal data source', of(registries.personalData));
   count('hook handler', hookHandlers().filter((h) => h.owner === id).length);
   return out;
 }
