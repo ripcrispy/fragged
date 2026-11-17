@@ -150,6 +150,32 @@ core.
 
 </details>
 
+<details>
+<summary><strong>Administration and moderation</strong> (5 screenshots)</summary>
+<br>
+
+**Admin dashboard**: site totals, open reports and active bans at a glance, plus the latest privileged actions.
+
+<img src="docs/assets/admin-dashboard.jpg" alt="The admin dashboard with totals for members, threads, posts, direct messages, open reports, active bans and stored images, and a list of recent privileged actions with who did them" width="860">
+
+**Audit log**: every privileged action by staff and modules, with who did it, what it affected, the details and the IP address. Filter by area, action, person, affected member or date (or click any filter icon in the table), use the quick filters, and download the results as CSV. Entries can't be edited or removed from here.
+
+<img src="docs/assets/admin-audit-log.jpg" alt="The audit log with quick filters, filter fields for area, action, who did it, what was affected and dates, and a table of entries such as enabling a module, warning a member, locking a thread and LAN Event Access payments and approvals" width="860">
+
+**Security events**: sign-ins and sign-outs, failed sign-ins, password resets and session activity, with the device and IP. Warnings are highlighted, and the last 24 hours are summarised at the top.
+
+<img src="docs/assets/admin-security-events.jpg" alt="The security events log with a last-24-hours summary of sign-ins, failed sign-ins, sign-outs, password reset requests and sessions signed out, filters, and a table of events with the member, method, IP address and device; failed sign-ins are highlighted in red" width="860">
+
+**Reports queue**: members report posts, threads, profiles and messages with a reason; moderators resolve or dismiss them with a note.
+
+<img src="docs/assets/mod-reports.jpg" alt="The moderation reports queue with two open reports, each showing the reported post, its author, the reason and the member's note, who reported it, and resolve or dismiss buttons" width="860">
+
+**Member moderation**: warn, suspend or ban a member and keep private staff notes, with their warnings, suspensions, notes and audit trail in one place.
+
+<img src="docs/assets/mod-member.jpg" alt="The moderation page for a member with forms to warn, suspend or ban and add a private note, and a history showing a warning issued by a moderator and the matching audit-trail entry" width="860">
+
+</details>
+
 ## Stack
 
 Node 24 · TypeScript · [Hono](https://hono.dev) with server-rendered JSX · [Drizzle ORM](https://orm.drizzle.team) ·

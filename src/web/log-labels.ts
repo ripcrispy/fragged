@@ -3,6 +3,7 @@
  * viewers can offer plain-language dropdowns. Codes that aren't listed fall back to a readable version of the
  * code itself, so new actions still display sensibly.
  */
+import { listModules } from '../modules/runtime.ts';
 
 export interface LabelDef { label: string; category: string; severity?: 'info' | 'notice' | 'warning' }
 
@@ -132,10 +133,17 @@ export const TARGET_TYPES: Record<string, string> = {
 export const PROVIDER_NAMES: Record<string, string> = { password: 'Password', google: 'Google', discord: 'Discord', facebook: 'Facebook', apple: 'Apple', github: 'GitHub', dev: 'Test provider' };
 
 export function humanise(code: string): string {
-  const s = code.replace(/[._]+/g, ' ').trim();
+  const s = code.replace(/[._-]+/g, ' ').trim().replace(/\blan\b/gi, 'LAN');
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
-export const auditLabel = (code: string) => AUDIT_ACTIONS[code]?.label ?? humanise(code);
+/** Module actions are named `<module id>.<verb>`: show them as "<module name>: <verb>". */
+function moduleActionLabel(code: string): string | null {
+  const dot = code.indexOf('.');
+  if (dot < 1) return null;
+  const m = listModules().find((x) => x.def.id === code.slice(0, dot));
+  return m ? `${m.def.name}: ${humanise(code.slice(dot + 1))}` : null;
+}
+export const auditLabel = (code: string) => AUDIT_ACTIONS[code]?.label ?? moduleActionLabel(code) ?? humanise(code);
 export const securityLabel = (code: string) => SECURITY_KINDS[code]?.label ?? humanise(code);
 
 /** Codes belonging to a category (includes uncatalogued codes seen in the data whose prefix matches nothing → "other"). */

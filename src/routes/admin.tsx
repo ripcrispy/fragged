@@ -10,6 +10,7 @@ import { PERMISSIONS, invalidatePermissionCache, loadPermissionData, type Perm, 
 import { modulePermissions } from '../modules/runtime.ts';
 import { registries } from '../modules/registry.ts';
 import { adminUserPanels } from '../web/extensions.tsx';
+import { auditLabel, humanise, TARGET_TYPES } from '../web/log-labels.ts';
 
 /** Core permissions plus those declared by installed modules (grouped by module for display). */
 export function permissionCatalog(): { key: string; label: string; group: string }[] {
@@ -84,7 +85,7 @@ adminRoutes.get('/admin', async (c) => {
         <Stat label="Images stored" value={`${numberFmt(Number(s.uploads))} (${(Number(s.upload_bytes) / 1e6).toFixed(1)} MB)`} />
       </div>
       <Box title="Recent privileged actions" actions={<a href="/admin/audit">Full audit log</a>}>
-        <table class="data-table"><tbody>{recent.map((r) => <tr><td><Time d={r.createdAt} tz={tz(ctx)} mode="ago" /></td><td><UserLink user={r.actorId ? actors.get(r.actorId) : null} /></td><td><code>{r.action}</code></td><td class="small muted">{r.targetType} {r.targetId}</td></tr>)}</tbody></table>
+        <table class="data-table"><tbody>{recent.map((r) => <tr><td><Time d={r.createdAt} tz={tz(ctx)} mode="ago" /></td><td><UserLink user={r.actorId ? actors.get(r.actorId) : null} /></td><td>{auditLabel(r.action)}<div class="small muted"><code>{r.action}</code></div></td><td class="small muted">{r.targetType ? `${TARGET_TYPES[r.targetType] ?? humanise(r.targetType)}${r.targetId ? ` #${r.targetId}` : ''}` : ''}</td></tr>)}</tbody></table>
       </Box>
     </>
   ));
